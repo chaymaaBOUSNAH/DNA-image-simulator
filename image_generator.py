@@ -5,49 +5,63 @@ import random
 import pandas as pd
 #import cv2
 import matplotlib as mpl
-
+import json
 mpl.rc('figure', max_open_warning = 0)
 
 
+"load parameters from json file "
+
+with open('Config_parameters.json') as json_file:
+    data = json.load(json_file)
+    print(data)
+    
 """paramètres fichier de configuration:"""
     
-#Nombre d'image à générer
-N_images = 50
-#Nombre minimal et maximal de fibres à générer/image
-min_N_fibres = 5
-max_N_fibres = 50
-# caractéristiques image
-image_shape = (2048, 2048)
-image_width = image_shape[0]
-image_height = image_shape[1]
+# Nombre d'image à générer
+N_images = data['images_Number']
+
+# image_characteristics
+image_characteristics = data['image_characteristics']
+image_width = image_characteristics['image_width']
+image_height = image_characteristics['image_height']
 #Dots per inches (dpi) determines how many pixels the figure comprises
-dpi = 100
-delta = 0.1 #fluctuation de la pente des fibres ( entre 0 et 0,2)
-l_min = 100 # longueur min d'un fibre en pixel
-dist_min = 30 # distance minimale entre 2 fibres linéaires selon l'axe x
+dpi = image_characteristics['dpi']
 
-"""Hypothèses sur les analogues de nucléotide"""
+# fiber_characteristics
+fiber_characteristics = data['fiber_characteristics']
+#Nombre minimal et maximal de fibres à générer/image
+min_N_fibres = fiber_characteristics['min_Number_fibres']
+max_N_fibres = fiber_characteristics['max_Number_fibres']
+#fluctuation de la pente des fibres ( entre 0 et 0,2)
+delta = fiber_characteristics['fiber_flectuation'] 
+# longueur min d'un fibre en pixel
+l_min = fiber_characteristics['fiber_min_lenght']
+# distance minimale entre 2 fibres linéaires selon l'axe x
+dist_min = fiber_characteristics['dist_min'] 
 
-lmin_Analog = 20
-lmax_Analog = 40
-lmax = 80 
+# Analog_characteristics
+Analog_characteristics = data['Analog_characteristics']
+lmin_Analog = Analog_characteristics['lmin_Analog']
+lmax_Analog = Analog_characteristics['lmax_Analog']
+lmax = Analog_characteristics['l_max_pair_analog'] 
 #nombre max de paire d'analogue sur une fibre
-Max_analog = 3
+Max_analog = Analog_characteristics['N_max_pair_analog'] 
 # les analogues doivent etre plus petites que les fibres 
 # la différence max de longeur entre une paire d'analogues dif_analg
-dif_analg = 30
+dif_analg = Analog_characteristics['diff_l_analg'] 
 # la longueur min d'une fibre qui peut avoir des analogues min_fibre
-min_fibre = 200
+min_fibre = Analog_characteristics['l_min_fibre_with_analog'] 
 
-"""Hypothèses sur les courbes en U et courbe bezier"""
+# curves_characteristics
+curves_characteristics = data['curves_characteristics']
 # les distan,ces en x et y entre chaque deux fibres qui forment des courbes de bezier
-distU_X= 10
-distU_Y= 300
+distU_X= curves_characteristics['distU_X']
+distU_Y= curves_characteristics['distU_Y']
 
-distx_min  = 30
-disty_min = 10
-distx_max = 100
-disty_max = 100
+distx_min  = curves_characteristics['distx_min']
+disty_min = curves_characteristics['disty_min']
+distx_max = curves_characteristics['distx_max']
+disty_max = curves_characteristics['disty_max']
 
 def distance(P1, P2):
     dist = math.sqrt((P1[0]-P2[0])**2-(P1[1]-P2[1])**2)
@@ -88,7 +102,7 @@ for i in range(N_images):
     data = np.sort(data)
           
     #créer une image vide (matrice de 0)
-    Image = np.zeros(image_shape)
+    Image = np.zeros((image_height, image_width))
     #paramètres de l'image
     fig, ax = plt.subplots(1, 1, figsize=(10, 10), sharex=True, sharey=True)
     ax = plt.Axes(fig, [0., 0., 1., 1.])
@@ -216,7 +230,7 @@ for i in range(N_images):
     ax.set_xlim((0, Image.shape[1]))
     ax.set_ylim((Image.shape[0], 0))
     
-    plt.savefig('./sm_with_coord/essai/images/image_'+str(i+300)+'_mask', bbox_inches='tight', pad_inches=0, dpi=dpi)
+    plt.savefig('./sm_with_coord/essai/images/image_'+str(i)+'_mask', bbox_inches='tight', pad_inches=0, dpi=dpi)
     
     # enregister les coordonées des fibres de chaque image dans un fichier csv
     
