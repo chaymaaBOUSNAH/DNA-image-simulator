@@ -17,7 +17,7 @@ from matplotlib import cm
 from scipy.ndimage.filters import gaussian_filter
 from skimage.transform import hough_line, hough_line_peaks, probabilistic_hough_line
 from skimage.filters import threshold_mean, threshold_triangle
-
+from scipy.signal import convolve2d
 from Bezier_curve import Bezier
 
 mpl.rc('figure', max_open_warning = 0)
@@ -34,6 +34,46 @@ def sorted_file( l ):
 
 
 
+# Sharpen
+sharpen = np.array([[0, -1, 0],
+                    [-1, 5, -1],
+                    [0, -1, 0]])
+# Gaussian Blur
+gaussian = (1 / 16.0) * np.array([[1., 2., 1.],
+                                  [2., 4., 2.],
+                                  [1., 2., 1.]])
+'''
+fig, ax = plt.subplots(1,2, figsize = (17,10))
+ax[0].imshow(sharpen, cmap='gray')
+ax[0].set_title('Sharpen', fontsize = 18)
+    
+ax[1].imshow(gaussian, cmap='gray')
+ax[1].set_title('Gaussian Blur', fontsize = 18)
+    
+[axi.set_axis_off() for axi in ax.ravel()];
+'''
+
+def multi_convolver(image, kernel, iterations):
+    for i in range(iterations):
+        image = convolve2d(image, kernel, 'same', boundary = 'fill',
+                           fillvalue = 0)
+    return image
+
+def convolver_rgb(image, kernel, iterations = 1):
+    convolved_image_r = multi_convolver(image[:,:,0], kernel,
+                                        iterations)
+    convolved_image_g = multi_convolver(image[:,:,1], kernel, 
+                                        iterations)
+    convolved_image_b  = multi_convolver(image[:,:,2], kernel, 
+                                         iterations)
+    
+    reformed_image = np.dstack((np.rint(abs(convolved_image_r)), 
+                                np.rint(abs(convolved_image_g)), 
+                                np.rint(abs(convolved_image_b)))) 
+
+    return reformed_image
+
+
 '''
 Parameters
 ----------
@@ -43,21 +83,21 @@ mode : str
     One of the following strings, selecting the type of noise to add:
 
     'gauss'     Gaussian-distributed additive noise.
-    'poisson'   Poisson-distributed noise generated from the data.
     's&p'       Replaces random pixels with 0 or 1.
-    'speckle'   Multiplicative noise using out = image + n*image,where
-    n is uniform noise with specified mean & variance.
+
 ''' 
 
 
 def noisy(noise_typ,image):
+    
    if noise_typ == "gauss":
       row,col,ch= image.shape
       mean = 0 # Mean (“centre”) of the distribution.
-      var = np.random.uniform(0.1, 0.3)  # 0.3
-      print('var', var)
-      sigma = var**0.5 # Standard deviation (spread or “width”) of the distribution.
-      gauss = np.random.normal(mean,sigma,(row,col,ch))
+      #var = np.random.uniform(0.1, 0.3)  # 0.3
+      sigma = np.random.uniform(0.1, 1.5)  # Standard deviation (spread or “width”) of the distribution.
+      "Draw random samples from a normal (Gaussian) distribution."
+      # row * col * ch samples are drawn
+      gauss = np.random.normal(mean,sigma,(row,col,ch)) 
       gauss = gauss.reshape(row,col,ch)
       noisy = image + gauss
       return noisy
@@ -65,11 +105,14 @@ def noisy(noise_typ,image):
    elif noise_typ == "s&p":
       row,col,ch = image.shape
       print('image.shape', image.shape)
-           
-      s_vs_p = np.random.uniform(0.1, 0.2) 
+      # s_vs_p is the pourcentage of salt     
+      s_vs_p = np.random.uniform(0, 0.3) 
+      # pourcentage of noise to add
       amount =  np.random.uniform(0.1, 0.5) 
       out = np.copy(image)
-      # Salt mode
+      
+      # Add Salt 
+      # ceil return the smallest integer of a float 
       num_salt = np.ceil(amount * image.size * s_vs_p)
       print('num_salt', num_salt)
       coords = [np.random.randint(0, i - 1, int(num_salt))
@@ -77,26 +120,16 @@ def noisy(noise_typ,image):
       #coords = np.array(coords)
       out[coords] = 255
 
-      # Pepper mode
+      # Add Pepper 
       num_pepper = np.ceil(amount* image.size * (1. - s_vs_p))
       print('num_pepper', num_pepper)
       coords = [np.random.randint(0, i - 1, int(num_pepper))
               for i in image.shape]
       #coords = np.array(coords)
       out[coords] = 0
+            
       return out
   
-   elif noise_typ == "poisson":
-       vals = len(np.unique(image))
-       vals = 2 ** np.ceil(np.log2(vals))
-       noisy = np.random.poisson(image * vals) / float(vals)
-       return noisy
-   elif noise_typ =="speckle":
-       row,col,ch = image.shape
-       gauss = np.random.randn(row,col,ch)
-       gauss = gauss.reshape(row,col,ch)        
-       noisy = image + image * gauss
-       return noisy
 
 
 
@@ -121,13 +154,11 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         output_img1 = noisy("gauss", imag)
         
         output_img2 = noisy("s&p", output_img1)
-        #plt.imshow(output_img2 * 255).astype(np.uint8)
-        #output_img3 = noisy("speckle", output_img2)
-    
+
+        #output_img3 = convolver_rgb(output_img2, gaussian, 1)
+        
         image = output_img2[:,:, 0:3]
-        
-        #blurred = gaussian_filter(image, sigma=5)
-        
+               
         fig, ax = plt.subplots(1, 1, figsize=(10, 10), sharex=True, sharey=True)
         ax = plt.Axes(fig, [0., 0., 1., 1.])
         ax.set_axis_off()
@@ -143,8 +174,8 @@ for (dirpath, dirnames, filenames) in walk(images_path):
             a =  np.random.uniform(0, 2048)
             b =  np.random.uniform(0, 2048)
             p =  np.random.uniform(-10, 10)
-            
-            noise_colors = ['w', 'b', 'r', 'g']
+            # morceaux des fibres des analogues comme bruit
+            noise_colors = ['b', 'aqua', 'magenta']
             noise_color = random.choice(noise_colors)
             plt.plot((a, a+p),(b,b+p), color= noise_color)
             
