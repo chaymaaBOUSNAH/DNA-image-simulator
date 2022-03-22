@@ -13,7 +13,7 @@ mpl.rc('figure', max_open_warning = 0)
 
 with open('Config_parameters.json') as json_file:
     data = json.load(json_file)
-    print(data)
+    print('generator_parameters:', data)
     
 """paramètres fichier de configuration:"""
     
@@ -212,8 +212,8 @@ for i in range(N_images):
             
             
             if l_fibre>min_fibre and abs(l_Analog2-l_Analog1)<dif_analg and l_fibre>l_analog:  
-                
-                colors = np.array(['r', 'g'])
+                #magenta FF00FF: (255,0,255) # Aqua 00FFFF:(0,255,255)
+                colors = np.array(['#FF00FF', '#00FFFF'])
                 color1 = random.choice(colors)
                 index =  np.where(colors != color1)
                 color2 = colors[index[0][0]]
