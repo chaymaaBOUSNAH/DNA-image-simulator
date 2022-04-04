@@ -6,19 +6,13 @@ import random
 import pandas as pd
 import numpy as np
 import os
-#import cv2
 import matplotlib as mpl
-
+from PIL import Image 
 from os import walk
 from os.path import join
-from matplotlib.patches import Arc
-
 from matplotlib import cm
-from scipy.ndimage.filters import gaussian_filter
-from skimage.transform import hough_line, hough_line_peaks, probabilistic_hough_line
-from skimage.filters import threshold_mean, threshold_triangle
 from scipy.signal import convolve2d
-from Bezier_curve import Bezier
+
 
 mpl.rc('figure', max_open_warning = 0)
 
@@ -31,9 +25,89 @@ def sorted_file( l ):
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
     return sorted(l, key = alphanum_key)
 
+"""
+N_Biologic_noise = np.random.randint(10, 50) # le nombre possible de fibres(bruit) dans une image
+m = np.random.uniform(0, 0.01)
 
+images_path = './sm_with_coord/essai/noisy_glue/'
+for (dirpath, dirnames, filenames) in walk(images_path):
+    
+    file_index = 0
+    for image_file in sorted_file(filenames):
+        
+        image_path = join(images_path, image_file)
+        
+        imag = plt.imread(image_path)
 
+        #output_img3 = convolver_rgb(output_img2, gaussian, 1)
+        
+        image = imag[:,:, 0:3]
+               
+        fig, ax = plt.subplots(1, 1, figsize=(10, 10), sharex=True, sharey=True)
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+        fig.set_size_inches(2048/100, 2048/100)
+        
+        ax.imshow(image, cmap=plt.cm.gray, aspect='auto')       
+    
+        
+        for j in range(N_Biologic_noise):
+            
+            #bruit bilogique: fibres d'ADN et analogues
+            p1 =  np.random.uniform(1, 30)       
+            # coordonnées x des fibres d'ADN
+            x1 = np.random.uniform(0, 2048) 
+            #lmin pour ne pas avoir des fibre trop petites(qui ressemblent au bruit) 
+            x2 = x1+p1
+            # coordonnées y des fibres d'ADN
+            y1 = np.random.uniform(0, 2048) 
+            #déterminer l'intercept de la droite
+            b = y1 - m*x1
+            # calculer y2 de la meme fibre
+            y2 = m*x2 + b
+            
+            
+            # morceaux des fibres des analogues comme bruit
+            noise_colors = ['b', 'aqua', 'magenta']
+            noise_color = np.random.choice(noise_colors, 1, p = [0.8, 0.1, 0.1])
+            
+            plt.plot((x1, x2),(y1, y2), color= noise_color[0], linewidth=5)
+            
+            
+            # autre bruit : poussière
+            x = np.random.uniform(0, 2048)
+            y = np.random.uniform(0, 2048)
 
+            
+            colors = ['g', 'r', 'b']
+            color = random.choices(colors, weights=[0.5, 0.3, 0.2])
+            alpha_value = 0.3
+            
+            n_point =  np.random.randint(10, 60)
+            s = np.random.randint(1, 30)
+                
+            for n in range(1, n_point+1):
+                if n<5:
+                    plt.scatter(x,y, marker='o', c = 'w', s = s*n, alpha = alpha_value/n)
+                else:
+                    plt.scatter(x,y, marker='o',color = color, s = s*n , alpha = alpha_value/(n*1.5))
+                    
+                        
+
+            #plt.scatter(x,y, marker='o', s=w , alpha = alpha_value, color = color, cmap = viridis)
+            
+        ax.set_xlim((0, image.shape[1]))
+        ax.set_ylim((image.shape[0], 0))
+        #ax[1].set_title('draw lines')
+        
+               
+        plt.savefig('./sm_with_coord/essai/noisy_fibers/'+image_file, bbox_inches='tight', pad_inches=0, dpi = 100)
+        
+        
+        file_index +=1
+
+"""
 # Sharpen
 sharpen = np.array([[0, -1, 0],
                     [-1, 5, -1],
@@ -92,9 +166,10 @@ def noisy(noise_typ,image):
     
    if noise_typ == "gauss":
       row,col,ch= image.shape
-      mean = 0 # Mean (“centre”) of the distribution.
+      mean = 0# Mean (“centre”) of the distribution.
       #var = np.random.uniform(0.1, 0.3)  # 0.3
-      sigma = np.random.uniform(0.1, 1.5)  # Standard deviation (spread or “width”) of the distribution.
+      sigma = np.random.uniform(0.5, 1.5)  # Standard deviation (spread or “width”) of the distribution.
+      print('sigma', sigma)
       "Draw random samples from a normal (Gaussian) distribution."
       # row * col * ch samples are drawn
       gauss = np.random.normal(mean,sigma,(row,col,ch)) 
@@ -104,25 +179,22 @@ def noisy(noise_typ,image):
   
    elif noise_typ == "s&p":
       row,col,ch = image.shape
-      print('image.shape', image.shape)
       # s_vs_p is the pourcentage of salt     
       s_vs_p = np.random.uniform(0, 0.3) 
       # pourcentage of noise to add
-      amount =  np.random.uniform(0.1, 0.5) 
+      amount =  np.random.uniform(0.1, 0.8) 
       out = np.copy(image)
       
       # Add Salt 
       # ceil return the smallest integer of a float 
       num_salt = np.ceil(amount * image.size * s_vs_p)
-      print('num_salt', num_salt)
       coords = [np.random.randint(0, i - 1, int(num_salt))
               for i in image.shape]
       #coords = np.array(coords)
-      out[coords] = 255
+      out[coords] = 1
 
       # Add Pepper 
       num_pepper = np.ceil(amount* image.size * (1. - s_vs_p))
-      print('num_pepper', num_pepper)
       coords = [np.random.randint(0, i - 1, int(num_pepper))
               for i in image.shape]
       #coords = np.array(coords)
@@ -137,77 +209,39 @@ def noisy(noise_typ,image):
 cmap = cm.get_cmap("Spectral")
 viridis = cm.get_cmap('viridis')
 
-N_Biologic_noise = np.random.randint(20, 70) # le nombre possible de fibre dans une image
+N_Biologic_noise = np.random.randint(20, 80) # le nombre possible de fibres(bruit) dans une image
 
 
-images_path = './sm_with_coord/essai/noisy_glue/'
+images_path = './sm_with_coord/essai/noisy_fibers/'
 for (dirpath, dirnames, filenames) in walk(images_path):
     
     file_index = 0
     for image_file in sorted_file(filenames):
         
         image_path = join(images_path, image_file)
-        
+        '''
+        imag = Image.open(image_path).convert('RGB')
+        imag = np.array(imag)
+        '''
         imag = plt.imread(image_path)
-        
-              
+        imag = imag[:, :, :3]
+          
         output_img1 = noisy("gauss", imag)
+        # Image = Image/np.amax(Image)
+        output_img1 = np.clip(output_img1, 0, 1)
         
         output_img2 = noisy("s&p", output_img1)
 
         #output_img3 = convolver_rgb(output_img2, gaussian, 1)
+        """
+        First ensure your NumPy array, myarray, is normalised with the max value at 1.0.
+        Apply the colormap directly to myarray.
+        Rescale to the 0-255 range.
+        Convert to integers, using np.uint8().
+        Use Image.fromarray().
+        """
+        #output_img2 = Image.fromarray(np.uint8(output_img2))
         
-        image = output_img2[:,:, 0:3]
-               
-        fig, ax = plt.subplots(1, 1, figsize=(10, 10), sharex=True, sharey=True)
-        ax = plt.Axes(fig, [0., 0., 1., 1.])
-        ax.set_axis_off()
-        fig.add_axes(ax)
-        fig.set_size_inches(2048/100, 2048/100)
-        
-        ax.imshow(image, cmap=plt.cm.gray, aspect='auto')       
-    
-        
-        for j in range(N_Biologic_noise):
-            
-            #bruit bilogique: fibres d'ADN et analogues
-            a =  np.random.uniform(0, 2048)
-            b =  np.random.uniform(0, 2048)
-            p =  np.random.uniform(-10, 10)
-            # morceaux des fibres des analogues comme bruit
-            noise_colors = ['b', 'aqua', 'magenta']
-            noise_color = random.choice(noise_colors)
-            plt.plot((a, a+p),(b,b+p), color= noise_color)
-            
-            # autre bruit : poussière
-            x = np.random.uniform(0, 2048)
-            y = np.random.uniform(0, 2048)
-
-            
-            colors = ['g', 'r', 'pink']
-            color = random.choices(colors, weights=[0.6, 0.3, 0.1])
-            alpha_value = 0.3
-            
-            n_point =  np.random.randint(10, 60)
-            s = np.random.randint(1, 20)
-                
-            for n in range(1, n_point+1):
-                if n<5:
-                    plt.scatter(x,y, marker='o', c = 'w', s = s*n, alpha = alpha_value/n)
-                else:
-                    plt.scatter(x,y, marker='o',color = color, s = s*n , alpha = alpha_value/(n*1.5))
-                    
-                        
-
-            #plt.scatter(x,y, marker='o', s=w , alpha = alpha_value, color = color, cmap = viridis)
-            
-        ax.set_xlim((0, image.shape[1]))
-        ax.set_ylim((image.shape[0], 0))
-        #ax[1].set_title('draw lines')
-        
-               
-        plt.savefig('./sm_with_coord/essai/noisy/'+image_file, bbox_inches='tight', pad_inches=0, dpi = 100)
-        
-        
+        plt.imsave('./sm_with_coord/essai/noisy/'+image_file, output_img2)
         file_index +=1
 
