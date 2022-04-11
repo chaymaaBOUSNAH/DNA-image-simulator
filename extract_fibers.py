@@ -224,3 +224,22 @@ for (dirpath, dirnames, filenames) in walk(Segmented_images_path):
             
 """
         
+"""
+import os
+import numpy as np
+import dask_image.imread
+from dask_image import ndfilters, ndmorph, ndmeasure
+from PIL import ImageDraw, ImageFont
+
+
+
+filename_pattern = os.path.join('./image_tiff.tif')
+tiled_astronaut_images = dask_image.imread.imread(filename_pattern)
+
+
+import image_slicer
+tiles = image_slicer.slice('36.tif', 2, save=False)
+image_slicer.save_tiles(tiles, directory='./chunks',\
+                            prefix='slice')
+    
+"""
