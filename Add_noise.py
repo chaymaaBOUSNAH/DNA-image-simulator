@@ -25,8 +25,10 @@ def sorted_file( l ):
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
     return sorted(l, key = alphanum_key)
 
-"""
-N_Biologic_noise = np.random.randint(10, 50) # le nombre possible de fibres(bruit) dans une image
+
+N_Biologic_noise = np.random.randint(5, 40) # le nombre possible de fibres(bruit) dans une image
+noisy_fibers = np.random.randint(5, 10)
+noisy_dust = np.random.randint(5, 30)
 m = np.random.uniform(0, 0.01)
 
 images_path = './sm_with_coord/essai/noisy_glue/'
@@ -52,10 +54,10 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         ax.imshow(image, cmap=plt.cm.gray, aspect='auto')       
     
         
-        for j in range(N_Biologic_noise):
+        for j in range(noisy_fibers):
             
             #bruit bilogique: fibres d'ADN et analogues
-            p1 =  np.random.uniform(1, 30)       
+            p1 =  np.random.uniform(1, 20)       
             # coordonnées x des fibres d'ADN
             x1 = np.random.uniform(0, 2048) 
             #lmin pour ne pas avoir des fibre trop petites(qui ressemblent au bruit) 
@@ -67,24 +69,29 @@ for (dirpath, dirnames, filenames) in walk(images_path):
             # calculer y2 de la meme fibre
             y2 = m*x2 + b
             
-            
             # morceaux des fibres des analogues comme bruit
             noise_colors = ['b', 'aqua', 'magenta']
             noise_color = np.random.choice(noise_colors, 1, p = [0.8, 0.1, 0.1])
+            linewidth = np.random.randint(2, 8)
+            plt.plot((x1, x2),(y1, y2), color= noise_color[0], linewidth=linewidth)
             
-            plt.plot((x1, x2),(y1, y2), color= noise_color[0], linewidth=5)
+        for noise in range(N_Biologic_noise):     
+            a = np.random.uniform(0, 2048)
+            b = np.random.uniform(0, 2048)
+            s = np.random.randint(1, 20)
+            plt.scatter(a, b, marker='o', c = 'b', s = s)
             
-            
+        for noisy_dust in range(noisy_dust):   
             # autre bruit : poussière
             x = np.random.uniform(0, 2048)
             y = np.random.uniform(0, 2048)
 
             
-            colors = ['g', 'r', 'b']
-            color = random.choices(colors, weights=[0.5, 0.3, 0.2])
+            colors = ['g', 'r']
+            color = random.choices(colors, weights=[0.6, 0.4])
             alpha_value = 0.3
             
-            n_point =  np.random.randint(10, 60)
+            n_point =  np.random.randint(10, 50)
             s = np.random.randint(1, 30)
                 
             for n in range(1, n_point+1):
@@ -103,11 +110,13 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         
                
         plt.savefig('./sm_with_coord/essai/noisy_fibers/'+image_file, bbox_inches='tight', pad_inches=0, dpi = 100)
+        print('image saved')
         
         
         file_index +=1
 
-"""
+
+
 # Sharpen
 sharpen = np.array([[0, -1, 0],
                     [-1, 5, -1],
@@ -161,15 +170,15 @@ mode : str
 
 ''' 
 
-
 def noisy(noise_typ,image):
     
    if noise_typ == "gauss":
       row,col,ch= image.shape
       mean = 0# Mean (“centre”) of the distribution.
       #var = np.random.uniform(0.1, 0.3)  # 0.3
-      sigma = np.random.uniform(0.5, 1.5)  # Standard deviation (spread or “width”) of the distribution.
-      print('sigma', sigma)
+      #sigma = np.random.uniform(0.5, 1.5)  # Standard deviation (spread or “width”) of the distribution.
+      #print('sigma', sigma)
+      sigma = np.random.uniform(0.2, 1)
       "Draw random samples from a normal (Gaussian) distribution."
       # row * col * ch samples are drawn
       gauss = np.random.normal(mean,sigma,(row,col,ch)) 
@@ -202,9 +211,78 @@ def noisy(noise_typ,image):
             
       return out
   
+"""
+def sp_noise(image, prob):
+    '''
+    Add salt and pepper noise to image
+    prob: Probability of the noise
+    '''
+    output = image.copy()
+    if len(image.shape) == 2:
+        black = 0
+        white = 255            
+    else:
+        colorspace = image.shape[2]
+        if colorspace == 3:  # RGB
+            black = np.array([0, 0, 0], dtype='uint8')
+            white = np.array([255, 255, 255], dtype='uint8')
+        else:  # RGBA
+            black = np.array([0, 0, 0, 255], dtype='uint8')
+            white = np.array([255, 255, 255, 255], dtype='uint8')
+    probs = np.random.random(output.shape[:2])
+    output[probs < (prob / 2)] = black
+    output[probs > 1 - (prob / 2)] = white
+    return output
 
+"""
+# salt & pepper noise for rgb image
+def sp_noise(image, prob):
+    '''
+    Add salt and pepper noise to image
+    prob: Probability of the noise
+    '''
+    output = image.copy()
+    
+    black = np.array([0, 0, 0], dtype='uint8')
+    white = np.array([255, 255, 255], dtype='uint8')
+       
+    probs = np.random.random(output.shape[:2])
+    output[probs < (prob / 2)] = black
+    output[probs > 1 - (prob / 2)] = white
+    return output
 
-
+def s_p_noise(image, prob):
+    output = image.copy()
+    blue_channel = output[:, :, 2]
+    red_channel = output[:, :, 0]
+    green_channel = output[:, :, 1]
+    
+    channels = [red_channel, green_channel, blue_channel]
+    noisy_image = []
+    for channel in channels:
+        s_vs_p = np.random.uniform(0, 0.5) 
+        # pourcentage of noise to add
+        amount =  np.random.uniform(0.1, 0.8) 
+    
+        # Add Salt 
+        # ceil return the smallest integer of a float 
+        num_salt = np.ceil(amount * channel.size * s_vs_p)
+        coords = [np.random.randint(0, i - 1, int(num_salt))
+                for i in channel.shape]
+        #coords = np.array(coords)
+        channel[coords] = 1
+        
+        # Add Pepper 
+        num_pepper = np.ceil(amount* channel.size * (1. - s_vs_p))
+        coords = [np.random.randint(0, i - 1, int(num_pepper))
+                for i in channel.shape]
+        #coords = np.array(coords)
+        channel[coords] = 0
+        
+        noisy_image.append()
+        
+            
+    
 
 cmap = cm.get_cmap("Spectral")
 viridis = cm.get_cmap('viridis')
@@ -233,15 +311,15 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         output_img2 = noisy("s&p", output_img1)
 
         #output_img3 = convolver_rgb(output_img2, gaussian, 1)
-        """
+        '''
         First ensure your NumPy array, myarray, is normalised with the max value at 1.0.
         Apply the colormap directly to myarray.
         Rescale to the 0-255 range.
         Convert to integers, using np.uint8().
         Use Image.fromarray().
-        """
+        '''
         #output_img2 = Image.fromarray(np.uint8(output_img2))
         
-        plt.imsave('./sm_with_coord/essai/noisy/'+image_file, output_img2)
+        plt.imsave('./sm_with_coord/essai/noisy2/'+image_file, output_img2)
         file_index +=1
 
