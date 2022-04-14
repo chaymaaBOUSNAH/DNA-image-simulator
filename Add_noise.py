@@ -25,7 +25,7 @@ def sorted_file( l ):
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
     return sorted(l, key = alphanum_key)
 
-
+"""
 N_Biologic_noise = np.random.randint(5, 40) # le nombre possible de fibres(bruit) dans une image
 noisy_fibers = np.random.randint(5, 10)
 noisy_dust = np.random.randint(5, 30)
@@ -155,7 +155,7 @@ def convolver_rgb(image, kernel, iterations = 1):
                                 np.rint(abs(convolved_image_b)))) 
 
     return reformed_image
-
+"""
 
 '''
 Parameters
@@ -251,38 +251,86 @@ def sp_noise(image, prob):
     output[probs > 1 - (prob / 2)] = white
     return output
 
-def s_p_noise(image, prob):
-    output = image.copy()
-    blue_channel = output[:, :, 2]
-    red_channel = output[:, :, 0]
-    green_channel = output[:, :, 1]
+#(def s_p_noise(image):
+image = plt.imread('./sm_with_coord/essai/images/image_0_mask.png')
+image = image[:, :, :3]
+row,col,ch= image.shape
+
+output = image.copy()
+blue_channel = output[:, :, 2]
+red_channel = output[:, :, 0]
+green_channel = output[:, :, 1]
+
+channels = [red_channel, green_channel, blue_channel]
+noisy_image = []
+for channel in channels:
+ 
+    s_vs_p = np.random.uniform(0, 0.5) 
+    # pourcentage of noise to add
+    amount =  np.random.uniform(0.3, 0.8) 
+
+    # Add Salt 
+    # ceil return the smallest integer of a float 
+    num_salt = np.ceil(amount * channel.size * s_vs_p)
     
-    channels = [red_channel, green_channel, blue_channel]
-    noisy_image = []
-    for channel in channels:
-        s_vs_p = np.random.uniform(0, 0.5) 
-        # pourcentage of noise to add
-        amount =  np.random.uniform(0.1, 0.8) 
+    coord = [np.random.randint(0, i-1, int(num_salt)) for i in channel.shape]
+    x, y = coord
+    rand_index = random.sample(range(len(x)),int(num_salt*(40/100)))
+    rand_x, rand_y = x[rand_index], y[rand_index]
+       
     
-        # Add Salt 
-        # ceil return the smallest integer of a float 
-        num_salt = np.ceil(amount * channel.size * s_vs_p)
-        coords = [np.random.randint(0, i - 1, int(num_salt))
-                for i in channel.shape]
-        #coords = np.array(coords)
-        channel[coords] = 1
-        
-        # Add Pepper 
-        num_pepper = np.ceil(amount* channel.size * (1. - s_vs_p))
-        coords = [np.random.randint(0, i - 1, int(num_pepper))
-                for i in channel.shape]
-        #coords = np.array(coords)
-        channel[coords] = 0
-        
-        noisy_image.append()
-        
+    random_xcoord = []
+    random_ycoord = []
+    for indx in range(len(rand_index)):
+        m = np.random.randint(1, 50)
+        if x[indx]+m <channel.shape[0] and y[indx]+m <channel.shape[1]:
+            random_xcord = x[indx]+m 
+            random_xcoord.append(random_xcord)
             
+            random_ycord = y[indx]+m 
+            random_ycoord.append(random_ycord)
+            
+     
     
+         
+    #coords = np.array(coord)
+    channel[coord] = 255
+    channel[(random_xcoord, random_ycoord)] = 255
+    
+    
+    # Add Pepper 
+    num_pepper = np.ceil(amount* channel.size * (1. - s_vs_p))
+    coords = [np.random.randint(0, i - 1, int(num_pepper))
+            for i in channel.shape]
+    
+    _x, _y = coords
+    _index = random.sample(range(len(_x)),int(num_pepper*(40/100)))
+    rn_x, rn_y = _x[_index], _y[_index]
+
+    
+    _xcoord = []
+    _ycoord = []
+    for indx in range(len(rand_index)):
+        n = np.random.randint(1, 50)
+        
+        if _x[indx]+n <channel.shape[0] and _y[indx]+n <channel.shape[1]:
+            _xcord = _x[indx]+n 
+            _xcoord.append(_xcord)
+            
+            _ycord = _y[indx]+n 
+            _ycoord.append(_ycord)
+    
+    #coords = np.array(coords)
+    channel[coords] = 0
+    channel[(_xcoord, _ycoord)] = 0
+    
+    noisy_image.append(channel)
+noisy_image = np.asarray(noisy_image)
+noisy = noisy_image.transpose(1, 2, 0)
+plt.imshow(noisy)
+#return noisy
+        
+  
 
 cmap = cm.get_cmap("Spectral")
 viridis = cm.get_cmap('viridis')
@@ -306,9 +354,9 @@ for (dirpath, dirnames, filenames) in walk(images_path):
           
         output_img1 = noisy("gauss", imag)
         # Image = Image/np.amax(Image)
-        output_img1 = np.clip(output_img1, 0, 1)
+        #output_img1 = np.clip(output_img1, 0, 1)
         
-        output_img2 = noisy("s&p", output_img1)
+        output_img2 = s_p_noise(output_img1)
 
         #output_img3 = convolver_rgb(output_img2, gaussian, 1)
         '''
@@ -318,8 +366,8 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         Convert to integers, using np.uint8().
         Use Image.fromarray().
         '''
-        #output_img2 = Image.fromarray(np.uint8(output_img2))
+        output_img2 = Image.fromarray(np.uint8(output_img2))
         
-        plt.imsave('./sm_with_coord/essai/noisy2/'+image_file, output_img2)
+        plt.imsave('./sm_with_coord/essai/noisy1/'+image_file, output_img2)
         file_index +=1
 
