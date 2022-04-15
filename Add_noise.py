@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import os
 import matplotlib as mpl
-from PIL import Image 
+from PIL import Image, ImageFilter
 from os import walk
 from os.path import join
 from matplotlib import cm
@@ -174,11 +174,11 @@ def noisy(noise_typ,image):
     
    if noise_typ == "gauss":
       row,col,ch= image.shape
-      mean = 0# Mean (“centre”) of the distribution.
+      mean = 0.5# Mean (“centre”) of the distribution.
       #var = np.random.uniform(0.1, 0.3)  # 0.3
       #sigma = np.random.uniform(0.5, 1.5)  # Standard deviation (spread or “width”) of the distribution.
       #print('sigma', sigma)
-      sigma = np.random.uniform(0.2, 1)
+      sigma = np.random.uniform(0.2, 0.7)
       "Draw random samples from a normal (Gaussian) distribution."
       # row * col * ch samples are drawn
       gauss = np.random.normal(mean,sigma,(row,col,ch)) 
@@ -251,84 +251,85 @@ def sp_noise(image, prob):
     output[probs > 1 - (prob / 2)] = white
     return output
 
-#(def s_p_noise(image):
-image = plt.imread('./sm_with_coord/essai/images/image_0_mask.png')
-image = image[:, :, :3]
-row,col,ch= image.shape
-
-output = image.copy()
-blue_channel = output[:, :, 2]
-red_channel = output[:, :, 0]
-green_channel = output[:, :, 1]
-
-channels = [red_channel, green_channel, blue_channel]
-noisy_image = []
-for channel in channels:
- 
-    s_vs_p = np.random.uniform(0, 0.5) 
-    # pourcentage of noise to add
-    amount =  np.random.uniform(0.3, 0.8) 
-
-    # Add Salt 
-    # ceil return the smallest integer of a float 
-    num_salt = np.ceil(amount * channel.size * s_vs_p)
+def s_p_noise(image):
+    #image = plt.imread('./sm_with_coord/essai/images/image_0_mask.png')
+    #image = image[:, :, :3]
+    row,col,ch= image.shape
     
-    coord = [np.random.randint(0, i-1, int(num_salt)) for i in channel.shape]
-    x, y = coord
-    rand_index = random.sample(range(len(x)),int(num_salt*(40/100)))
-    rand_x, rand_y = x[rand_index], y[rand_index]
-       
+    #output = image.copy()
+    blue_channel = image[:, :, 2]
+    red_channel = image[:, :, 0]
+    green_channel = image[:, :, 1]
     
-    random_xcoord = []
-    random_ycoord = []
-    for indx in range(len(rand_index)):
-        m = np.random.randint(1, 50)
-        if x[indx]+m <channel.shape[0] and y[indx]+m <channel.shape[1]:
-            random_xcord = x[indx]+m 
-            random_xcoord.append(random_xcord)
-            
-            random_ycord = y[indx]+m 
-            random_ycoord.append(random_ycord)
-            
+    channels = [red_channel, green_channel, blue_channel]
+    noisy_image = []
+    for channel in channels:
      
+        s_vs_p = np.random.uniform(0.3, 0.7) 
+        # pourcentage of noise to add
+        amount =  np.random.uniform(0.1, 0.6) 
     
-         
-    #coords = np.array(coord)
-    channel[coord] = 255
-    channel[(random_xcoord, random_ycoord)] = 255
-    
-    
-    # Add Pepper 
-    num_pepper = np.ceil(amount* channel.size * (1. - s_vs_p))
-    coords = [np.random.randint(0, i - 1, int(num_pepper))
-            for i in channel.shape]
-    
-    _x, _y = coords
-    _index = random.sample(range(len(_x)),int(num_pepper*(40/100)))
-    rn_x, rn_y = _x[_index], _y[_index]
-
-    
-    _xcoord = []
-    _ycoord = []
-    for indx in range(len(rand_index)):
-        n = np.random.randint(1, 50)
+        # Add Salt 
+        # ceil return the smallest integer of a float 
+        num_salt = np.ceil(amount * channel.size * s_vs_p)
         
-        if _x[indx]+n <channel.shape[0] and _y[indx]+n <channel.shape[1]:
-            _xcord = _x[indx]+n 
-            _xcoord.append(_xcord)
+        coord = [np.random.randint(0, i-1, int(num_salt)) for i in channel.shape]
+        
+        x, y = coord
+        rand_index = random.sample(range(len(x)), int(num_salt))
+        rand_x, rand_y = x[rand_index], y[rand_index]
+           
+        
+        random_xcoord = []
+        random_ycoord = []
+        for indx in range(len(rand_index)):
+            m = np.random.randint(1, 50)
+            if x[indx]+m <channel.shape[0] and y[indx]+m <channel.shape[1]:
+                for pixel in range(m):
+                    random_xcord = x[indx]+m 
+                    random_xcoord.append(random_xcord)
+                    
+                    random_ycord = y[indx]+m 
+                    random_ycoord.append(random_ycord)
+                               
+             
+        #coords = np.array(coord)
+        #channel[coord] = np.array([255], dtype='uint8')
+        channel[(random_xcoord, random_ycoord)] = np.array([255], dtype='uint8')
+        
+        
+        # Add Pepper 
+        num_pepper = np.ceil(amount* channel.size * (1. - s_vs_p))
+        coords = [np.random.randint(0, i - 1, int(num_pepper))
+                for i in channel.shape]
+        
+        _x, _y = coords
+        _index = random.sample(range(len(_x)),int(num_pepper))
+        rn_x, rn_y = _x[_index], _y[_index]
+    
+        
+        _xcoord = []
+        _ycoord = []
+        for indx in range(len(rand_index)):
+            n = np.random.randint(1, 20)
             
-            _ycord = _y[indx]+n 
-            _ycoord.append(_ycord)
-    
-    #coords = np.array(coords)
-    channel[coords] = 0
-    channel[(_xcoord, _ycoord)] = 0
-    
-    noisy_image.append(channel)
-noisy_image = np.asarray(noisy_image)
-noisy = noisy_image.transpose(1, 2, 0)
-plt.imshow(noisy)
-#return noisy
+            if _x[indx]+n <channel.shape[0] and _y[indx]+n <channel.shape[1]:
+                for pixel in range(n):
+                    _xcord = _x[indx]+n 
+                    _xcoord.append(_xcord)
+                    
+                    _ycord = _y[indx]+n 
+                    _ycoord.append(_ycord)
+        
+        #coords = np.array(coords)
+        #channel[coords] = np.array([0], dtype='uint8')
+        channel[(_xcoord, _ycoord)] = np.array([0], dtype='uint8')
+        
+        noisy_image.append(channel)
+    noisy_image = np.array(noisy_image)
+    noisy = noisy_image.transpose(1, 2, 0)
+    #plt.imshow(noisy)
+    return noisy
         
   
 
@@ -349,13 +350,18 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         imag = Image.open(image_path).convert('RGB')
         imag = np.array(imag)
         '''
-        imag = plt.imread(image_path)
-        imag = imag[:, :, :3]
-          
-        output_img1 = noisy("gauss", imag)
+        #imag = plt.imread(image_path)
+        #imag = imag[:, :, :3]
+        imag = Image.open(image_path).convert('RGB')
+        #img = np.array(imag)
+        
+        #radius – Standard deviation of the Gaussian kernel
+        radius = np.random.randint(1, 7)  
+        print('radius', radius)
+        output_img1 = imag.filter(ImageFilter.GaussianBlur(radius = radius))
         # Image = Image/np.amax(Image)
         #output_img1 = np.clip(output_img1, 0, 1)
-        
+        output_img1 = np.array(output_img1)
         output_img2 = s_p_noise(output_img1)
 
         #output_img3 = convolver_rgb(output_img2, gaussian, 1)
@@ -366,8 +372,8 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         Convert to integers, using np.uint8().
         Use Image.fromarray().
         '''
-        output_img2 = Image.fromarray(np.uint8(output_img2))
+        #output_img2 = Image.fromarray(np.uint8(output_img2))
         
-        plt.imsave('./sm_with_coord/essai/noisy1/'+image_file, output_img2)
+        plt.imsave('./sm_with_coord/essai/noisy1/'+image_file, np.uint8(output_img2))
         file_index +=1
 
