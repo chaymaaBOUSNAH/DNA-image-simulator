@@ -70,6 +70,8 @@ def distance(P1, P2):
 # la pente des fibres sur toute les image
 
 for i in range(N_images):
+    fiber_width = np.random.randint(3, 7)
+    
     m = np.random.uniform(0, delta)
     pente = ['normal', 'decale']
     choix_pente = random.choices(pente, weights=[0.7, 0.3])
@@ -143,7 +145,7 @@ for i in range(N_images):
         # calculer la longueur des fibres 
         l_fibre = distance(p1, p2)
         # dessiner les fibres
-        plt.plot((x1, x2),(y1, y2), 'b', linewidth=5)
+        plt.plot((x1, x2),(y1, y2), 'b', linewidth=fiber_width)
         
         # enregister les coordonnées avecx lequelles on va faire la forme U
         last_fibre_x2.append(x2)
@@ -164,7 +166,7 @@ for i in range(N_images):
             l2_u.append((last_fibre_x1[j], last_fibre_y1[j]))
       
         
-        # enregister les lignes sur les quel on va ajouter un autrtes type de bruit
+        # enregister les lignes sur les quel on va ajouter un autre type de bruit
         distx_C1 = abs(last_fibre_x1[j]-last_fibre_x1[j-1])
         disty_C1 = abs(last_fibre_y1[j]-last_fibre_y1[j-1])
         if last_fibre_x2[j]<last_fibre_x1[j-1] and distx_C1 <distx_max and distx_C1>distx_min and disty_C1<disty_max:           
