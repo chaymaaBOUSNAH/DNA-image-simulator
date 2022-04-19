@@ -278,13 +278,13 @@ def s_p_noise(image):
         
         x, y = coord
         
-        per = np.random.uniform(0.1, 0.5)
+        per = np.random.uniform(0.1, 0.4)
         rand_index = random.sample(range(len(x)), int(num_salt*per))
         rand_x, rand_y = x[rand_index], y[rand_index]
            
-           
-        for i in range(50):
-            s = np.random.randint(2, 5)
+        cube = np.random.randint(100, 1000)
+        for i in range(cube):
+            s = np.random.randint(2, 10)
             plt.scatter(rand_x[i], rand_y[i], s=s, c=255, marker='s')
         
         random_xcoord = []
@@ -317,7 +317,7 @@ def s_p_noise(image):
     
         black_cube = np.random.randint(100, 1000)
         for j in range(black_cube):
-            size = np.random.randint(2, 5)
+            size = np.random.randint(2, 10)
             plt.scatter(rn_x[j], rn_y[j], s=size, c=0, marker='s')
         
         _xcoord = []
