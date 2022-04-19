@@ -267,7 +267,8 @@ def s_p_noise(image):
      
         s_vs_p = np.random.uniform(0.3, 0.7) 
         # pourcentage of noise to add
-        amount =  np.random.uniform(0.1, 0.6) 
+        amount = np.random.uniform(0.1, 0.3)
+         
     
         # Add Salt 
         # ceil return the smallest integer of a float 
@@ -276,22 +277,27 @@ def s_p_noise(image):
         coord = [np.random.randint(0, i-1, int(num_salt)) for i in channel.shape]
         
         x, y = coord
-        rand_index = random.sample(range(len(x)), int(num_salt))
+        rand_index = random.sample(range(len(x)), int(num_salt*50/100))
         rand_x, rand_y = x[rand_index], y[rand_index]
            
+           
+        for i in range(50):
+            s = np.random.randint(2, 5)
+            plt.scatter(rand_x[i], rand_y[i], s=s, c=255, marker='s')
         
         random_xcoord = []
         random_ycoord = []
         for indx in range(len(rand_index)):
-            m = np.random.randint(1, 50)
-            if x[indx]+m <channel.shape[0] and y[indx]+m <channel.shape[1]:
+            m = np.random.randint(2, 5)
+            if rand_x[indx]+m <channel.shape[0] and rand_y[indx]+m <channel.shape[1]:
                 for pixel in range(m):
-                    random_xcord = x[indx]+m 
+                    
+                    random_xcord = rand_x[indx]
                     random_xcoord.append(random_xcord)
                     
-                    random_ycord = y[indx]+m 
-                    random_ycoord.append(random_ycord)
-                               
+                    random_ycord = rand_y[indx]+pixel
+                    random_ycoord.append(random_ycord)     
+            
              
         #coords = np.array(coord)
         #channel[coord] = np.array([255], dtype='uint8')
@@ -304,22 +310,26 @@ def s_p_noise(image):
                 for i in channel.shape]
         
         _x, _y = coords
-        _index = random.sample(range(len(_x)),int(num_pepper))
+        _index = random.sample(range(len(_x)),int(num_pepper*50/100))
         rn_x, rn_y = _x[_index], _y[_index]
     
         
+        for j in range(100):
+            size = np.random.randint(2, 5)
+            plt.scatter(rn_x[j], rn_y[j], s=size, c=0, marker='s')
+        
         _xcoord = []
         _ycoord = []
-        for indx in range(len(rand_index)):
-            n = np.random.randint(1, 20)
-            
-            if _x[indx]+n <channel.shape[0] and _y[indx]+n <channel.shape[1]:
+        for indx in range(len(_index)):
+            n = np.random.randint(2, 5)
+            if rn_x[indx]+n <channel.shape[0] and rn_y[indx]+n <channel.shape[1]:
                 for pixel in range(n):
-                    _xcord = _x[indx]+n 
+                    _xcord = rn_x[indx]
                     _xcoord.append(_xcord)
                     
-                    _ycord = _y[indx]+n 
+                    _ycord = rn_y[indx]+pixel
                     _ycoord.append(_ycord)
+         
         
         #coords = np.array(coords)
         #channel[coords] = np.array([0], dtype='uint8')
@@ -354,15 +364,16 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         #imag = imag[:, :, :3]
         imag = Image.open(image_path).convert('RGB')
         #img = np.array(imag)
-        
+        output_img2 = np.array(imag)
+        output_img2 = s_p_noise(output_img2)
+        output_img2 = Image.fromarray(output_img2)
         #radius – Standard deviation of the Gaussian kernel
-        radius = np.random.randint(1, 7)  
+        radius = np.random.randint(2, 5)  
         print('radius', radius)
-        output_img1 = imag.filter(ImageFilter.GaussianBlur(radius = radius))
+        output_img1 = output_img2.filter(ImageFilter.GaussianBlur(radius = radius))
         # Image = Image/np.amax(Image)
         #output_img1 = np.clip(output_img1, 0, 1)
-        output_img1 = np.array(output_img1)
-        output_img2 = s_p_noise(output_img1)
+       
 
         #output_img3 = convolver_rgb(output_img2, gaussian, 1)
         '''
@@ -374,6 +385,6 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         '''
         #output_img2 = Image.fromarray(np.uint8(output_img2))
         
-        plt.imsave('./sm_with_coord/essai/noisy1/'+image_file, np.uint8(output_img2))
+        plt.imsave('./sm_with_coord/essai/noisy1/'+image_file, np.uint8(output_img1))
         file_index +=1
 
