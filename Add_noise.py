@@ -277,7 +277,9 @@ def s_p_noise(image):
         coord = [np.random.randint(0, i-1, int(num_salt)) for i in channel.shape]
         
         x, y = coord
-        rand_index = random.sample(range(len(x)), int(num_salt*50/100))
+        
+        per = np.random.uniform(0.1, 0.5)
+        rand_index = random.sample(range(len(x)), int(num_salt*per))
         rand_x, rand_y = x[rand_index], y[rand_index]
            
            
@@ -310,11 +312,11 @@ def s_p_noise(image):
                 for i in channel.shape]
         
         _x, _y = coords
-        _index = random.sample(range(len(_x)),int(num_pepper*50/100))
+        _index = random.sample(range(len(_x)),int(num_pepper*per))
         rn_x, rn_y = _x[_index], _y[_index]
     
-        
-        for j in range(100):
+        black_cube = np.random.randint(100, 1000)
+        for j in range(black_cube):
             size = np.random.randint(2, 5)
             plt.scatter(rn_x[j], rn_y[j], s=size, c=0, marker='s')
         
