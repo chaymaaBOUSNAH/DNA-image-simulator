@@ -174,7 +174,7 @@ def noisy(noise_typ,image):
     
    if noise_typ == "gauss":
       row,col,ch= image.shape
-      mean = 0.5# Mean (“centre”) of the distribution.
+      mean = 0# Mean (“centre”) of the distribution.
       #var = np.random.uniform(0.1, 0.3)  # 0.3
       #sigma = np.random.uniform(0.5, 1.5)  # Standard deviation (spread or “width”) of the distribution.
       #print('sigma', sigma)
@@ -256,17 +256,19 @@ def s_p_noise(image):
     #image = image[:, :, :3]
     row,col,ch= image.shape
     
-    #output = image.copy()
-    blue_channel = image[:, :, 2]
-    red_channel = image[:, :, 0]
-    green_channel = image[:, :, 1]
+    output = image.copy()
+    
+    blue_channel = output[:, :, 2]
+    red_channel = output[:, :, 0]
+    green_channel = output[:, :, 1]
     
     channels = [red_channel, green_channel, blue_channel]
     noisy_image = []
-    for channel in channels:
-     
-        s_vs_p = np.random.uniform(0.3, 0.7) 
-        # pourcentage of noise to add
+    for i in range(ch):
+        channel = output[: , :, i]
+        # le poucentage de salt vs pepper
+        s_vs_p = np.random.uniform(0.5, 0.8) 
+        # pourcentage de bruit salt& pepper à ajouter
         amount = np.random.uniform(0.1, 0.3)
          
     
@@ -274,27 +276,31 @@ def s_p_noise(image):
         # ceil return the smallest integer of a float 
         num_salt = np.ceil(amount * channel.size * s_vs_p)
         
+        # choisir aléatopirement les coordonnées ou on va mettre salt 
         coord = [np.random.randint(0, i-1, int(num_salt)) for i in channel.shape]
         
         x, y = coord
         
-        per = np.random.uniform(0.1, 0.4)
+        # choisir alétoirement un pourcentatge de ces corrdonnées 
+        #pour ajouter des grandes taches de bruit salyt & pepper
+        #per = np.random.uniform(0.1, 0.4)
+        per= 0.1
         rand_index = random.sample(range(len(x)), int(num_salt*per))
         rand_x, rand_y = x[rand_index], y[rand_index]
-           
-        cube = np.random.randint(100, 1000)
+        '''   
+        cube = np.random.randint(10, 100)
         for i in range(cube):
             s = np.random.randint(2, 10)
-            plt.scatter(rand_x[i], rand_y[i], s=s, c=255, marker='s')
-        
+            plt.scatter(rand_x[i], rand_y[i], s=s, c='w', marker='s')
+        '''
         random_xcoord = []
         random_ycoord = []
         for indx in range(len(rand_index)):
-            m = np.random.randint(2, 5)
+            m = np.random.randint(1, 3)
             if rand_x[indx]+m <channel.shape[0] and rand_y[indx]+m <channel.shape[1]:
                 for pixel in range(m):
                     
-                    random_xcord = rand_x[indx]
+                    random_xcord = rand_x[indx]+pixel
                     random_xcoord.append(random_xcord)
                     
                     random_ycord = rand_y[indx]+pixel
@@ -302,8 +308,8 @@ def s_p_noise(image):
             
              
         #coords = np.array(coord)
-        #channel[coord] = np.array([255], dtype='uint8')
-        channel[(random_xcoord, random_ycoord)] = np.array([255], dtype='uint8')
+        #channel[(x, y)] = np.array([1], dtype='uint8')
+        channel[(random_xcoord, random_ycoord)] = np.array([1], dtype='uint8')
         
         
         # Add Pepper 
@@ -314,19 +320,19 @@ def s_p_noise(image):
         _x, _y = coords
         _index = random.sample(range(len(_x)),int(num_pepper*per))
         rn_x, rn_y = _x[_index], _y[_index]
-    
-        black_cube = np.random.randint(100, 1000)
+        '''
+        black_cube = np.random.randint(10, 100)
         for j in range(black_cube):
             size = np.random.randint(2, 10)
-            plt.scatter(rn_x[j], rn_y[j], s=size, c=0, marker='s')
-        
+            plt.scatter(rn_x[j], rn_y[j], s=size, c='black', marker='s')
+        '''
         _xcoord = []
         _ycoord = []
         for indx in range(len(_index)):
-            n = np.random.randint(2, 5)
+            n = np.random.randint(1, 3)
             if rn_x[indx]+n <channel.shape[0] and rn_y[indx]+n <channel.shape[1]:
                 for pixel in range(n):
-                    _xcord = rn_x[indx]
+                    _xcord = rn_x[indx]+pixel
                     _xcoord.append(_xcord)
                     
                     _ycord = rn_y[indx]+pixel
@@ -334,7 +340,7 @@ def s_p_noise(image):
          
         
         #coords = np.array(coords)
-        #channel[coords] = np.array([0], dtype='uint8')
+        #channel[(_x, _y)] = np.array([0], dtype='uint8')
         channel[(_xcoord, _ycoord)] = np.array([0], dtype='uint8')
         
         noisy_image.append(channel)
@@ -362,17 +368,19 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         imag = Image.open(image_path).convert('RGB')
         imag = np.array(imag)
         '''
-        #imag = plt.imread(image_path)
+        imag = plt.imread(image_path)
+        
         #imag = imag[:, :, :3]
-        imag = Image.open(image_path).convert('RGB')
+        #imag = Image.open(image_path).convert('RGB')
         #img = np.array(imag)
-        output_img2 = np.array(imag)
-        output_img2 = s_p_noise(output_img2)
-        output_img2 = Image.fromarray(output_img2)
+        #output_img2 = np.array(imag)
+        output_img2 = s_p_noise(imag)
+        output_img = (output_img2*255).astype(np.uint8)
+        output_img = Image.fromarray(output_img)
         #radius – Standard deviation of the Gaussian kernel
         radius = np.random.randint(2, 5)  
         print('radius', radius)
-        output_img1 = output_img2.filter(ImageFilter.GaussianBlur(radius = radius))
+        output_img1 = output_img.filter(ImageFilter.GaussianBlur(radius = radius))
         # Image = Image/np.amax(Image)
         #output_img1 = np.clip(output_img1, 0, 1)
        
