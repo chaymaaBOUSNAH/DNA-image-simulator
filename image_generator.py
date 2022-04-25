@@ -70,7 +70,7 @@ def distance(P1, P2):
 # la pente des fibres sur toute les image
 
 for i in range(N_images):
-    fiber_width = np.random.randint(3, 7)
+    fiber_width = np.random.randint(4, 10)
     
     m = np.random.uniform(0, delta)
     pente = ['normal', 'decale']
@@ -117,6 +117,8 @@ for i in range(N_images):
     
     
     for j in range(N):
+        diff_width = np.random.uniform(0, 1)
+        fiber_width  = fiber_width + diff_width
         
         # changer la pente sur l'image
         if j>N*(70/100) and choix_pente==['decale']:
@@ -222,10 +224,10 @@ for i in range(N_images):
     
                 
                 # dessiner clu sur l'image 
-                plt.plot((Analog1_x1, Analog1_x2),(Analog1_y1,Analog1_y2), color = color1, linewidth=5)
+                plt.plot((Analog1_x1, Analog1_x2),(Analog1_y1,Analog1_y2), color = color1, linewidth=fiber_width)
             
                 # dessiner cldu sur l'image
-                plt.plot((Analog2_x1, Analog2_x2),(Analog2_y1, Analog2_y2), color = color2, linewidth=5)
+                plt.plot((Analog2_x1, Analog2_x2),(Analog2_y1, Analog2_y2), color = color2, linewidth=fiber_width)
                 
         
 
