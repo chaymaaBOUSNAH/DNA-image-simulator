@@ -25,11 +25,10 @@ def sorted_file( l ):
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
     return sorted(l, key = alphanum_key)
 
-"""
 N_Biologic_noise = np.random.randint(5, 40) # le nombre possible de fibres(bruit) dans une image
-noisy_fibers = np.random.randint(5, 10)
-noisy_dust = np.random.randint(5, 30)
-perlage = np.random.randint(1000, 5000)
+noisy_fibers = np.random.randint(20, 50)
+noisy_dust = np.random.randint(20, 50)
+perlage = np.random.randint(1000, 8000)
 m = np.random.uniform(0, 0.01)
 
 images_path = './sm_with_coord/essai/noisy_glue/'
@@ -104,8 +103,11 @@ for (dirpath, dirnames, filenames) in walk(images_path):
             y = np.random.uniform(0, 2048)
             size = np.random.randint(1, 20)
             markers = ['s', 'o']
-            marker = random.choices(markers, weights=[0.6, 0.4])
-            plt.scatter(x, y, s=size, c='black', marker='s')               
+            markr = np.random.choice(markers, 1, p=[0.6, 0.4])
+            colors = ['g', 'r', 'black']
+            color = np.random.choice(colors, 1, p = [0.2, 0.2, 0.6])
+            
+            plt.scatter(x, y, s=size, c=color[0], marker=markr[0])               
 
            #plt.scatter(x,y, marker='o', s=w , alpha = alpha_value, color = color, cmap = viridis)
             
@@ -119,9 +121,8 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         
         
         file_index +=1
-
-
 """
+
 # Sharpen
 sharpen = np.array([[0, -1, 0],
                     [-1, 5, -1],
@@ -215,7 +216,7 @@ def noisy(noise_typ,image):
       out[coords] = 0
             
       return out
-"""  
+  
 """
 def sp_noise(image, prob):
     '''
@@ -376,7 +377,7 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         output_img = (output_img2*255).astype(np.uint8)
         output_img = Image.fromarray(output_img)
         #radius – Standard deviation of the Gaussian kernel
-        radius = np.random.randint(2, 5)  
+        radius = np.random.randint(2, 6)  
         print('radius', radius)
         output_img1 = output_img.filter(ImageFilter.GaussianBlur(radius = radius))
         # Image = Image/np.amax(Image)
