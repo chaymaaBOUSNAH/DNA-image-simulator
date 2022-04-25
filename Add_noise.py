@@ -29,6 +29,7 @@ def sorted_file( l ):
 N_Biologic_noise = np.random.randint(5, 40) # le nombre possible de fibres(bruit) dans une image
 noisy_fibers = np.random.randint(5, 10)
 noisy_dust = np.random.randint(5, 30)
+perlage = np.random.randint(1000, 5000)
 m = np.random.uniform(0, 0.01)
 
 images_path = './sm_with_coord/essai/noisy_glue/'
@@ -85,8 +86,6 @@ for (dirpath, dirnames, filenames) in walk(images_path):
             # autre bruit : poussière
             x = np.random.uniform(0, 2048)
             y = np.random.uniform(0, 2048)
-
-            
             colors = ['g', 'r']
             color = random.choices(colors, weights=[0.6, 0.4])
             alpha_value = 0.3
@@ -100,9 +99,15 @@ for (dirpath, dirnames, filenames) in walk(images_path):
                 else:
                     plt.scatter(x,y, marker='o',color = color, s = s*n , alpha = alpha_value/(n*1.5))
                     
-                        
+        for j in range(perlage):
+            x = np.random.uniform(0, 2048)
+            y = np.random.uniform(0, 2048)
+            size = np.random.randint(1, 20)
+            markers = ['s', 'o']
+            marker = random.choices(markers, weights=[0.6, 0.4])
+            plt.scatter(x, y, s=size, c='black', marker='s')               
 
-            #plt.scatter(x,y, marker='o', s=w , alpha = alpha_value, color = color, cmap = viridis)
+           #plt.scatter(x,y, marker='o', s=w , alpha = alpha_value, color = color, cmap = viridis)
             
         ax.set_xlim((0, image.shape[1]))
         ax.set_ylim((image.shape[0], 0))
@@ -116,7 +121,7 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         file_index +=1
 
 
-
+"""
 # Sharpen
 sharpen = np.array([[0, -1, 0],
                     [-1, 5, -1],
@@ -210,7 +215,7 @@ def noisy(noise_typ,image):
       out[coords] = 0
             
       return out
-  
+"""  
 """
 def sp_noise(image, prob):
     '''
@@ -267,11 +272,10 @@ def s_p_noise(image):
     for i in range(ch):
         channel = output[: , :, i]
         # le poucentage de salt vs pepper
-        s_vs_p = np.random.uniform(0.5, 0.8) 
+        s_vs_p = np.random.uniform(0.3, 0.8) 
         # pourcentage de bruit salt& pepper à ajouter
-        amount = np.random.uniform(0.1, 0.3)
-         
-    
+        amount = np.random.uniform(0.1, 0.8)
+        print('amount salt fpr channel ', i, 'est', amount)
         # Add Salt 
         # ceil return the smallest integer of a float 
         num_salt = np.ceil(amount * channel.size * s_vs_p)
@@ -287,12 +291,7 @@ def s_p_noise(image):
         per= 0.1
         rand_index = random.sample(range(len(x)), int(num_salt*per))
         rand_x, rand_y = x[rand_index], y[rand_index]
-        '''   
-        cube = np.random.randint(10, 100)
-        for i in range(cube):
-            s = np.random.randint(2, 10)
-            plt.scatter(rand_x[i], rand_y[i], s=s, c='w', marker='s')
-        '''
+        """
         random_xcoord = []
         random_ycoord = []
         for indx in range(len(rand_index)):
@@ -306,12 +305,11 @@ def s_p_noise(image):
                     random_ycord = rand_y[indx]+pixel
                     random_ycoord.append(random_ycord)     
             
-             
+         """    
         #coords = np.array(coord)
-        #channel[(x, y)] = np.array([1], dtype='uint8')
-        channel[(random_xcoord, random_ycoord)] = np.array([1], dtype='uint8')
-        
-        
+        channel[(x, y)] = np.array([1], dtype='uint8')
+        #channel[(random_xcoord, random_ycoord)] = np.array([1], dtype='uint8')
+          
         # Add Pepper 
         num_pepper = np.ceil(amount* channel.size * (1. - s_vs_p))
         coords = [np.random.randint(0, i - 1, int(num_pepper))
@@ -325,7 +323,7 @@ def s_p_noise(image):
         for j in range(black_cube):
             size = np.random.randint(2, 10)
             plt.scatter(rn_x[j], rn_y[j], s=size, c='black', marker='s')
-        '''
+       
         _xcoord = []
         _ycoord = []
         for indx in range(len(_index)):
@@ -337,11 +335,11 @@ def s_p_noise(image):
                     
                     _ycord = rn_y[indx]+pixel
                     _ycoord.append(_ycord)
-         
+        ''' 
         
         #coords = np.array(coords)
-        #channel[(_x, _y)] = np.array([0], dtype='uint8')
-        channel[(_xcoord, _ycoord)] = np.array([0], dtype='uint8')
+        channel[(_x, _y)] = np.array([0], dtype='uint8')
+        #channel[(_xcoord, _ycoord)] = np.array([0], dtype='uint8')
         
         noisy_image.append(channel)
     noisy_image = np.array(noisy_image)
@@ -370,7 +368,7 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         '''
         imag = plt.imread(image_path)
         
-        #imag = imag[:, :, :3]
+        imag = imag[:, :, :3]
         #imag = Image.open(image_path).convert('RGB')
         #img = np.array(imag)
         #output_img2 = np.array(imag)
