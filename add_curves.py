@@ -112,12 +112,12 @@ def draw_bezier_curve(point1, point2, C):
     #Définir deux points pour la courbe de bézier 
     # sens 1
     if C == 'C1':
-        i_1_x, i_1_y = x_1-L/4, y_1
-        i_2_x, i_2_y = x_2+L/4, y_2
+        i_1_x, i_1_y = x_1-L/3, y_1
+        i_2_x, i_2_y = x_2+L/3, y_2
     # sens 2
     if C == 'C2':
-        i_1_x, i_1_y = x_2+L/4, y_1
-        i_2_x, i_2_y = x_1-L/4, y_2
+        i_1_x, i_1_y = x_2+L/3, y_1
+        i_2_x, i_2_y = x_1-L/3, y_2
     
     points = np.array([[x_1, y_1], [i_1_x , i_1_y], [i_2_x, i_2_y], [x_2, y_2]])
     t_points = np.arange(0, 1, 0.01)
@@ -127,11 +127,13 @@ def draw_bezier_curve(point1, point2, C):
     return curve
 
 
+N_Biologic_noise = np.random.randint(5, 40) # le nombre possible de fibres(bruit) dans une image
+noisy_fibers = np.random.randint(20, 50)
+noisy_dust = np.random.randint(20, 50)
+perlage = np.random.randint(500, 1000)
+m = np.random.uniform(0, 0.01)
 
-cmap = cm.get_cmap("Spectral")
-viridis = cm.get_cmap('viridis')
 
-N_Biologic_noise = np.random.randint(20, 70) # le nombre possible de fibre dans une image
 
 
 images_path = './sm_with_coord/essai/images/'
@@ -163,9 +165,9 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         
         ax.imshow(image, cmap=plt.cm.gray, aspect='auto')
 
-        add_curve_U = ['true', 'false']
-        adding_curve_U = random.choices(add_curve_U, weights=[0.9, 0.1])
-        if np.size(csv1) !=0 and adding_curve_U==['true']:
+        Add_U_curve = ['true', 'false']
+        Adding_curve = random.choices(Add_U_curve, weights=[0.7, 0.3])
+        if np.size(csv1) !=0 and Adding_curve==['true']:
             for k in range(len(csv1)):
                 
                 x1, x2 = csv1['X'][k], csv2['X'][k]
@@ -174,9 +176,9 @@ for (dirpath, dirnames, filenames) in walk(images_path):
                 x_cercle, y_cercle = draw_cercle((y2, x2), (y1,x1))
                 plt.plot(y_cercle, x_cercle,  color = 'b', linewidth=5)
         
-        add_curve1 = ['true', 'false']
-        adding_curve1 = random.choices(add_curve1, weights=[0.9, 0.1])
-        if np.size(csv3) !=0 and adding_curve1==['true']:
+        Add_Bezier_curve = ['true', 'false']
+        Adding_Bezier_curve = random.choices(Add_Bezier_curve, weights=[0.7, 0.3])
+        if np.size(csv3) !=0 and Adding_Bezier_curve==['true']:
             for k in range(len(csv3)):
                 
                 x_11, x_12 = csv3['X'][k], csv4['X'][k]
@@ -188,11 +190,8 @@ for (dirpath, dirnames, filenames) in walk(images_path):
                 	curve1[:, 0],   # x-coordinates.
                 	curve1[:, 1],    # y-coordinates.
                     color = 'b', linewidth=5)
-        
                 
-        add_curve2 = ['true', 'false']
-        adding_curve2 = random.choices(add_curve2, weights=[0.9, 0.1])
-        if np.size(csv5) !=0 and adding_curve2==['true']:
+        if np.size(csv5) !=0 and Adding_Bezier_curve==['true']:
             for k in range(len(csv5)):
                 
                 x_21, x_22 = csv5['X'][k], csv6['X'][k]
@@ -206,14 +205,71 @@ for (dirpath, dirnames, filenames) in walk(images_path):
                     color = 'b', linewidth=5)
                 
                 
-            
+        '''Add noisy fibers , fluerrescent noise, peper noise'''    
                 
+        for j in range(noisy_fibers):
+            
+            #bruit bilogique: fibres d'ADN et analogues
+            p1 =  np.random.uniform(1, 20)       
+            # coordonnées x des fibres d'ADN
+            x1 = np.random.uniform(0, 2048) 
+            #lmin pour ne pas avoir des fibre trop petites(qui ressemblent au bruit) 
+            x2 = x1+p1
+            # coordonnées y des fibres d'ADN
+            y1 = np.random.uniform(0, 2048) 
+            #déterminer l'intercept de la droite
+            b = y1 - m*x1
+            # calculer y2 de la meme fibre
+            y2 = m*x2 + b
+            
+            # morceaux des fibres des analogues comme bruit
+            noise_colors = ['b', 'aqua', 'magenta']
+            noise_color = np.random.choice(noise_colors, 1, p = [0.8, 0.1, 0.1])
+            linewidth = np.random.randint(2, 8)
+            plt.plot((x1, x2),(y1, y2), color= noise_color[0], linewidth=linewidth)
+            
+        for noise in range(N_Biologic_noise):     
+            a = np.random.uniform(0, 2048)
+            b = np.random.uniform(0, 2048)
+            s = np.random.randint(1, 20)
+            plt.scatter(a, b, marker='o', c = 'b', s = s)
+            
+        for noisy_dust in range(noisy_dust):   
+            # autre bruit : poussière
+            x = np.random.uniform(0, 2048)
+            y = np.random.uniform(0, 2048)
+            colors = ['g', 'r']
+            color = random.choices(colors, weights=[0.6, 0.4])
+            alpha_value = 0.3
+            
+            n_point =  np.random.randint(10, 50)
+            s = np.random.randint(1, 30)
+                
+            for n in range(1, n_point+1):
+                if n<5:
+                    plt.scatter(x,y, marker='o', c = 'w', s = s*n, alpha = alpha_value/n)
+                else:
+                    plt.scatter(x,y, marker='o',color = color, s = s*n , alpha = alpha_value/(n*1.5))
+                    
+        for j in range(perlage):
+            x = np.random.uniform(0, 2048)
+            y = np.random.uniform(0, 2048)
+            size = np.random.randint(5, 30)
+            markers = ['s', 'o']
+            markr = np.random.choice(markers, 1, p=[0.6, 0.4])
+            colors = ['g', 'r', 'black']
+            color = np.random.choice(colors, 1, p = [0.1, 0.1, 0.8])
+            
+            plt.scatter(x, y, s=size, c='black', marker=markr[0])               
+
+           #plt.scatter(x,y, marker='o', s=w , alpha = alpha_value, color = color, cmap = viridis)
+            
         ax.set_xlim((0, image.shape[1]))
         ax.set_ylim((image.shape[0], 0))
         #ax[1].set_title('draw lines')
          
                
-        plt.savefig('./sm_with_coord/essai/noisy_curves/image_'+str(file_index), bbox_inches='tight', pad_inches=0, dpi = 100)
+        plt.savefig('./sm_with_coord/essai/noisy/image_'+str(file_index), bbox_inches='tight', pad_inches=0, dpi = 100)
 
         
         file_index +=1
