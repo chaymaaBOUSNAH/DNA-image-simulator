@@ -47,25 +47,27 @@ def All_csv(files_path):
     
 
 #lire les fichier csv
-files_path1 = './sm_with_coord/essai/L_U1/'
+files_path1 = './sm_with_coord/essai/Curves_data/L_U1/'
 all_lines_U1 = All_csv(files_path1)
 
-files_path2 = './sm_with_coord/essai/L_U2/'
+files_path2 = './sm_with_coord/essai/Curves_data/L_U2/'
 all_lines_U2 = All_csv(files_path2)
         
 
-files_path3 = './sm_with_coord/essai/L_C11/'    
+files_path3 = './sm_with_coord/essai/Curves_data/L_C11/'    
 all_lines_C11 = All_csv(files_path3)
 
-files_path4 = './sm_with_coord/essai/L_C12/' 
+files_path4 = './sm_with_coord/essai/Curves_data/L_C12/' 
 all_lines_C12  = All_csv(files_path4)
 
-files_path5 = './sm_with_coord/essai/L_C21/' 
+files_path5 = './sm_with_coord/essai/Curves_data/L_C21/' 
 all_lines_C21  = All_csv(files_path5)
 
-files_path6 = './sm_with_coord/essai/L_C22/' 
+files_path6 = './sm_with_coord/essai/Curves_data/L_C22/' 
 all_lines_C22  = All_csv(files_path6)
 
+files_path7 = './sm_with_coord/essai/fibres_data/' 
+Fibers_data = All_csv(files_path7)
 
 def hanging_line(point1, point2):
     import numpy as np
@@ -132,8 +134,7 @@ noisy_fibers = np.random.randint(20, 50)
 noisy_dust = np.random.randint(20, 50)
 perlage = np.random.randint(500, 1000)
 m = np.random.uniform(0, 0.01)
-
-
+# la discontinuité max du perlage
 
 
 images_path = './sm_with_coord/essai/images/'
@@ -154,6 +155,8 @@ for (dirpath, dirnames, filenames) in walk(images_path):
         csv4 = all_lines_C12[file_index]
         csv5 = all_lines_C21[file_index]         
         csv6 = all_lines_C22[file_index]
+        
+        Fiber_data = Fibers_data[file_index]
         
         image = imag[:,:, 0:3]
         
@@ -250,20 +253,42 @@ for (dirpath, dirnames, filenames) in walk(images_path):
                     plt.scatter(x,y, marker='o', c = 'w', s = s*n, alpha = alpha_value/n)
                 else:
                     plt.scatter(x,y, marker='o',color = color, s = s*n , alpha = alpha_value/(n*1.5))
-                    
+        '''            
         for j in range(perlage):
             x = np.random.uniform(0, 2048)
             y = np.random.uniform(0, 2048)
             size = np.random.randint(5, 30)
             markers = ['s', 'o']
             markr = np.random.choice(markers, 1, p=[0.6, 0.4])
-            colors = ['g', 'r', 'black']
-            color = np.random.choice(colors, 1, p = [0.1, 0.1, 0.8])
+            colors = ['g', 'r']
+            color = np.random.choice(colors, 1, p = [0.5, 0.5])
             
             plt.scatter(x, y, s=size, c='black', marker=markr[0])               
 
            #plt.scatter(x,y, marker='o', s=w , alpha = alpha_value, color = color, cmap = viridis)
+        '''
+        for fiber in range(len(Fiber_data)):
             
+            X1, X2 = Fiber_data['X1'][fiber], Fiber_data['X2'][fiber]
+            Y1, Y2 = Fiber_data['Y1'][fiber], Fiber_data['Y2'][fiber]
+            Width = Fiber_data['width'][fiber]
+            Pente = Fiber_data['slop'][fiber]
+            
+            Avec_perlage = ['true', 'false']
+            Perlage = random.choices(Avec_perlage, weights=[0.7, 0.3])
+            
+            if Perlage == ['true']:
+                lenth = np.random.uniform(10, 100)
+                x__1 = np.random.uniform(X1, X2-lenth)
+                x__2 = np.random.uniform(x__1, x__1+lenth)
+                y__1 = np.random.uniform(Y1, Y2)
+                
+                b_ = y__1 - Pente*x__1 
+                y__2  = Pente*x__2 + b_
+                plt.plot((x__1, x__2),(y__1, y__2), color= 'black', linewidth=Width+1)
+                
+                
+                
         ax.set_xlim((0, image.shape[1]))
         ax.set_ylim((image.shape[0], 0))
         #ax[1].set_title('draw lines')
