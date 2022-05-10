@@ -70,19 +70,24 @@ def distance(P1, P2):
 # la pente des fibres sur toute les image
 
 for i in range(N_images):
-    fiber_width = np.random.randint(4, 10)
+    fiber_width = np.random.randint(4, 7)
     
     m = np.random.uniform(0, delta)
     pente = ['normal', 'decale']
     choix_pente = random.choices(pente, weights=[0.7, 0.3])
     
     # P1 et P2 sont des listes contenants les coordonnées x et y des 2 points de deux fibre
-    P1 = [] 
-    P2 = []
+    X1 = [] 
+    X2 = []
+    Y1 = [] 
+    Y2 = []
     # l1_u coord (X2,Y2) des fibres qui peuvent etres en forme de U après
     # l2_u = [] coord (X2,Y2) des fibres dont la distance des x avec le fibre précédent est inf à 10
     l1_u = []
     l2_u = []
+    
+    Pente = []
+    width = []
     
     last_fibre_x2 = []
     last_fibre_y2 = []
@@ -117,11 +122,11 @@ for i in range(N_images):
     
     
     for j in range(N):
-        diff_width = np.random.uniform(0, 1)
+        diff_width = np.random.uniform(0, 0.5)
         fiber_width  = fiber_width + diff_width
         
         # changer la pente sur l'image
-        if j>N*(70/100) and choix_pente==['decale']:
+        if choix_pente==['decale']:
             m = m+0.001
         
         
@@ -141,8 +146,13 @@ for i in range(N_images):
         p2 = (x2, y2)
         
         # Enregistrer les coordonnérs des fibres 
-        P1.append(p1)
-        P2.append(p2)
+        X1.append(x1)
+        X2.append(x2)
+        Y1.append(y1)
+        Y2.append(y2)
+        
+        width.append(fiber_width)
+        Pente.append(m)
  
         # calculer la longueur des fibres 
         l_fibre = distance(p1, p2)
@@ -237,30 +247,39 @@ for i in range(N_images):
     plt.savefig('./sm_with_coord/essai/images/image_'+str(i)+'_mask', bbox_inches='tight', pad_inches=0, dpi=dpi)
     
     # enregister les coordonées des fibres de chaque image dans un fichier csv
+   
+    width = np.array(width)
+    Pente = np.array(Pente)
     
-    print('l1_u', l1_u)
+    #fibre_data = np.hstack((X1, Y1, X2, Y2, Pente, width))
+    fibre = pd.DataFrame([X1, Y1, X2, Y2, Pente, width],  dtype='f')
+    fibre = fibre.transpose() 
+    fibre.to_csv('./sm_with_coord/essai/fibres_data/fibres_img'+str(i), header=['X1', 'Y1', 'X2', 'Y2', 'slop', 'width'], index=False)
+    
+    
+
     line1_xy = pd.DataFrame(l1_u, columns=['X', 'Y'],  dtype='f')
    
-    line1_xy.to_csv('./sm_with_coord/essai/L_U1/l1_u'+str(i), index=False)
+    line1_xy.to_csv('./sm_with_coord/essai/Curves_data/L_U1/l1_u'+str(i), index=False)
     
     line2_xy = pd.DataFrame(l2_u, columns=['X', 'Y'],dtype='f')
    
-    line2_xy.to_csv('./sm_with_coord/essai/L_U2/l2_u'+str(i), index=False)
+    line2_xy.to_csv('./sm_with_coord/essai/Curves_data/L_U2/l2_u'+str(i), index=False)
     
     courbe_11 = pd.DataFrame(courbe_11, columns=['X', 'Y'],  dtype='f')
    
-    courbe_11.to_csv('./sm_with_coord/essai/L_C11/C_'+str(i), index=False)
+    courbe_11.to_csv('./sm_with_coord/essai/Curves_data/L_C11/C_'+str(i), index=False)
     
     courbe_12 = pd.DataFrame(courbe_12, columns=['X', 'Y'],  dtype='f')
    
-    courbe_12.to_csv('./sm_with_coord/essai/L_C12/C_2'+str(i), index=False)
+    courbe_12.to_csv('./sm_with_coord/essai/Curves_data/L_C12/C_2'+str(i), index=False)
     
     courbe_21 = pd.DataFrame(courbe_21, columns=['X', 'Y'],  dtype='f')
    
-    courbe_21.to_csv('./sm_with_coord/essai/L_C21/C_'+str(i), index=False)
+    courbe_21.to_csv('./sm_with_coord/essai/Curves_data/L_C21/C_'+str(i), index=False)
     
     courbe_22 = pd.DataFrame(courbe_22, columns=['X', 'Y'],  dtype='f')
    
-    courbe_22.to_csv('./sm_with_coord/essai/L_C22/C_2'+str(i), index=False)
+    courbe_22.to_csv('./sm_with_coord/essai/Curves_data/L_C22/C_2'+str(i), index=False)
     
  
