@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
 import random
-from Add_gaussian_2D_image import Gaussian_noise
+from Add_gaussian_2D_image import Gaussian_noise, Gaussian_noise_RGB, Add_Salt
 
-def Add_Electronic_noise(image, amount_SP, Gaussian_noise_sigma, gaussian_Blur_sigma):
+def Add_Electronic_noise(image, amount_SP, sigma_green_ch, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch):
    
     row,col,ch= image.shape
     
-    output = image.copy()
+    output = (image*255).astype(np.uint8)
     
     blue_channel = output[:, :, 2]
     red_channel = output[:, :, 0]
@@ -17,43 +17,39 @@ def Add_Electronic_noise(image, amount_SP, Gaussian_noise_sigma, gaussian_Blur_s
     channels = [red_channel, green_channel, blue_channel]
     noisy_image = []
     for i in range(ch):
+        
         channel = output[: , :, i]
-        # le poucentage de salt vs pepper
-        s_vs_p = np.random.uniform(0.7, 0.9) 
-        # pourcentage de bruit salt& pepper à ajouter
-        amount = np.random.uniform(0.1, amount_SP)
-        print('amount salt fpr channel ', i, 'est', amount)
-        # Add Salt 
-        # ceil return the smallest integer of a float 
-        num_salt = np.ceil(amount * channel.size * s_vs_p)
         
-        # choisir aléatopirement les coordonnées ou on va mettre salt 
-        coord = [np.random.randint(0, i-1, int(num_salt)) for i in channel.shape]
+        if i ==0:
+            channel = channel + Parasites_red_ch*np.ones((2048, 2048))
+            
+            # convertir les pixel au dessus de 255 à 255
+            channel = np.uint8(np.clip(channel, 0, 255))
+            #channel = channel.astype(np.uint8)
+            
+            #channel =  Gaussian_noise(channel, sigma_red_channel)
+            #channel = Add_Salt(channel, amount_SP*0.6) 
         
-        x, y = coord
-        
-
-        #coords = np.array(coord)
-        channel[(x, y)] = np.array([1], dtype='uint8')
-        #channel[(random_xcoord, random_ycoord)] = np.array([1], dtype='uint8')
+        # Ajouter S & P seulement sur la channal vert 
+        elif i ==1 :
+            #Ajouter du bruit: parasites de photons
+            
+            channel = channel + Parasites_green_ch*np.ones((2048, 2048))
+            channel = np.uint8(np.clip(channel, 0, 255))
+            #channel = channel.astype(np.uint8)
+            #channel =  Gaussian_noise(channel, sigma_green_ch)
+            #channel = channel.astype(np.uint8)
+            # le poucentage de salt vs pepper
+            channel = Add_Salt(channel, amount_SP)
           
-        # Add Pepper 
-        num_pepper = np.ceil(amount* channel.size * (1. - s_vs_p))
-        coords = [np.random.randint(0, i - 1, int(num_pepper))
-                for i in channel.shape]
-        
-        _x, _y = coords
- 
-        #coords = np.array(coords)
-        channel[(_x, _y)] = np.array([0], dtype='uint8')
-        #channel[(_xcoord, _ycoord)] = np.array([0], dtype='uint8')
-        
-        # Add gaussian noise to each channel
-        #channel_gauss = Gaussian_noise(channel, Gaussian_noise_sigma)
+            
+        elif i==2:
+            channel = channel + (Parasites_green_ch/2)*np.ones((2048, 2048))
+            channel = np.uint8(np.clip(channel, 0, 255))
         # blur each channel
-        channel_blur = gaussian_filter(channel, sigma=gaussian_Blur_sigma)
+        #channel_blur = gaussian_filter(channel, sigma=gaussian_Blur_sigma)
         
-        noisy_image.append(channel_blur)
+        noisy_image.append(channel)
         
         '''
         # enlever les valeurs négatives et les valeurs >255
@@ -66,25 +62,39 @@ def Add_Electronic_noise(image, amount_SP, Gaussian_noise_sigma, gaussian_Blur_s
         '''
     noisy_image = np.array(noisy_image)
     noisy = noisy_image.transpose(1, 2, 0)
+    
     #plt.imshow(noisy)
     return noisy
 
 
-from PIL import Image, ImageFilter
-amount_SP = 0.4
-Gaussian_noise_sigma = 0.5
-gaussian_Blur_sigma = 2
 
-image_path = './noisy_fibers/image_0.png'
+
+
+
+
+"""
+
+
+from PIL import Image, ImageFilter
+amount_SP = 0.1
+sigma_green_channel =5
+sigma_red_channel = 0.1
+gaussian_Blur_sigma = 2
+Parasites_green_ch = 60
+Parasites_red_ch =70
+
+image_path = './Essai/image_6.png'
 image = plt.imread(image_path)
 image = image[:, :, :3]
 
 
-noisy = Add_Electronic_noise(image, amount_SP, Gaussian_noise_sigma, gaussian_Blur_sigma)
-noisy = (noisy*255).astype(np.uint8)
-radius = np.random.randint(2, 6)  
+noisy = Add_Electronic_noise(image, amount_SP, sigma_green_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch)
+#noisy = (noisy*255).astype(np.uint8)
+radius = np.random.uniform(1, 4)  
 print('radius', radius)
 pil_image=Image.fromarray(noisy)
 pil_image = pil_image.filter(ImageFilter.GaussianBlur(radius = radius))
 
 pil_image.show()
+pil_image.save('./Essai/image_6_.png')
+"""
