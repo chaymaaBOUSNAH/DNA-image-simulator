@@ -8,7 +8,7 @@ def Add_Electronic_noise(image, amount_SP, sigma_green_ch, gaussian_Blur_sigma, 
    
     row,col,ch= image.shape
     
-    output = (image*255).astype(np.uint8)
+    output = (image).astype(np.uint8)
     
     blue_channel = output[:, :, 2]
     red_channel = output[:, :, 0]
@@ -86,7 +86,7 @@ Parasites_red_ch =70
 image_path = './Essai/image_6.png'
 image = plt.imread(image_path)
 image = image[:, :, :3]
-
+image = image*255
 
 noisy = Add_Electronic_noise(image, amount_SP, sigma_green_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch)
 #noisy = (noisy*255).astype(np.uint8)
