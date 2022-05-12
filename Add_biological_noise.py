@@ -147,6 +147,10 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
 # le nombre de discontinuité à effecter sur chaque fibre  
 #Add_biological_noise
 
+
+
+
+'''
 total_noisy_fibers = np.random.randint(20, 50)
 noisy_dust = np.random.randint(50, 200)
 pepper = np.random.randint(6000, 12000)
@@ -166,11 +170,13 @@ files_path7 = './fibres_data/'
 Curves_paths = [files_path1, files_path2, files_path3, files_path4,
                 files_path5, files_path6, files_path7]
 
-image_path = './images/image_2_mask.png'
+image_path = './images/image_6_mask.png'
 All_csv_path = [files_path1, files_path2, files_path3, files_path4, files_path5, files_path6, files_path7]
 
 fig = Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, prob, max_num_perlage, max_discontuinity)
 img = canvas2rgb_array(fig.canvas)
 pil_image=Image.fromarray(img)
 pil_image.show()
+pil_image.save('./Essai/image_6.png')
     
+'''
