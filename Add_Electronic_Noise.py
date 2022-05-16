@@ -4,8 +4,8 @@ from scipy.ndimage import gaussian_filter
 import random
 from Add_gaussian_2D_image import Gaussian_noise, Gaussian_noise_RGB, Add_Salt
 
-def Add_Electronic_noise(image, amount_SP, sigma_green_ch, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch):
-   
+def Add_Electronic_noise(image, amount_SP, sigma_green_ch, sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch):
+    Prob = 0.5
     row,col,ch= image.shape
     
     output = (image).astype(np.uint8)
@@ -20,31 +20,40 @@ def Add_Electronic_noise(image, amount_SP, sigma_green_ch, gaussian_Blur_sigma, 
         
         channel = output[: , :, i]
         
+        dominant_channel = ['green', 'red']
+        choosen_channel = random.choices(dominant_channel, weights=[Prob, 1-Prob])
+        
         if i ==0:
             channel = channel + Parasites_red_ch*np.ones((2048, 2048))
             
-            # convertir les pixel au dessus de 255 à 255
-            channel = np.uint8(np.clip(channel, 0, 255))
             #channel = channel.astype(np.uint8)
             
-            #channel =  Gaussian_noise(channel, sigma_red_channel)
-            #channel = Add_Salt(channel, amount_SP*0.6) 
+            channel =  Gaussian_noise(channel, sigma_red_channel)
+            # convertir les pixel au dessus de 255 à 255
+            channel = np.uint8(np.clip(channel, 0, 255))
+            if choosen_channel==['red']:
+                channel = Add_Salt(channel, amount_SP) 
+            else: 
+                channel = Add_Salt(channel, amount_SP*0.1) 
         
         # Ajouter S & P seulement sur la channal vert 
         elif i ==1 :
             #Ajouter du bruit: parasites de photons
             
             channel = channel + Parasites_green_ch*np.ones((2048, 2048))
+            
+            #channel = channel.astype(np.uint8)
+            channel =  Gaussian_noise(channel, sigma_green_ch)
             channel = np.uint8(np.clip(channel, 0, 255))
             #channel = channel.astype(np.uint8)
-            #channel =  Gaussian_noise(channel, sigma_green_ch)
-            #channel = channel.astype(np.uint8)
-            # le poucentage de salt vs pepper
-            channel = Add_Salt(channel, amount_SP)
-          
+            if choosen_channel==['green']:
+                channel = Add_Salt(channel, amount_SP)
+            else: 
+               channel = Add_Salt(channel, amount_SP*0.5)
             
         elif i==2:
             channel = channel + (Parasites_green_ch/2)*np.ones((2048, 2048))
+            channel =  Gaussian_noise(channel, sigma_red_channel)
             channel = np.uint8(np.clip(channel, 0, 255))
         # blur each channel
         #channel_blur = gaussian_filter(channel, sigma=gaussian_Blur_sigma)
@@ -72,29 +81,30 @@ def Add_Electronic_noise(image, amount_SP, sigma_green_ch, gaussian_Blur_sigma, 
 
 
 
-"""
 
+"""
 
 from PIL import Image, ImageFilter
 amount_SP = 0.1
-sigma_green_channel =5
+sigma_green_channel =1
 sigma_red_channel = 0.1
 gaussian_Blur_sigma = 2
-Parasites_green_ch = 60
-Parasites_red_ch =70
+Parasites_green_ch = 40
+Parasites_red_ch =50
 
-image_path = './Essai/image_6.png'
+image_path = './Essai/image_0.png'
 image = plt.imread(image_path)
 image = image[:, :, :3]
 image = image*255
+Prob = 0.5
 
-noisy = Add_Electronic_noise(image, amount_SP, sigma_green_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch)
+noisy = Add_Electronic_noise(image, amount_SP, sigma_green_channel,sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch)
 #noisy = (noisy*255).astype(np.uint8)
-radius = np.random.uniform(1, 4)  
+radius = np.random.uniform(1, 2)  
 print('radius', radius)
 pil_image=Image.fromarray(noisy)
 pil_image = pil_image.filter(ImageFilter.GaussianBlur(radius = radius))
 
 pil_image.show()
-pil_image.save('./Essai/image_6_.png')
+pil_image.save('./Essai/image_0_1.png')
 """
