@@ -12,8 +12,7 @@ from os.path import join
 
 
 
-def Add_global_noise(Images_dir, Curves_paths, min_noisy_fibers, max_noisy_fibers, Prob_perlage, max_num_perlage, 
-                     max_discontuinity, min_amount_salt, max_amount_salt, sigma_green_ch, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch, Flurescent_noise, pepper, output_dir_path):
+def Add_global_noise(Images_dir, Curves_paths, min_noisy_fibers, max_noisy_fibers, Prob_perlage, min_N_pixels_perlage, max_lenght_perlage, min_amount_salt, max_amount_salt, sigma_green_ch, sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch, Flurescent_noise, pepper, output_dir_path):
     
     
     for (dirpath, dirnames, filenames) in walk(Images_dir):
@@ -26,13 +25,13 @@ def Add_global_noise(Images_dir, Curves_paths, min_noisy_fibers, max_noisy_fiber
             image_path = join(Images_dir, image_file)
             
             # Ajouter du bruit biologique à l'image: quelques petits fibres et analogues + perlage
-            fig_1 = Add_biological_noise(image_path, Curves_paths, total_noisy_fibers, Prob_perlage, max_num_perlage, max_discontuinity)
+            fig_1 = Add_biological_noise(image_path, Curves_paths, total_noisy_fibers, Prob_perlage, min_N_pixels_perlage, max_lenght_perlage)
             image_bio_noise = canvas2rgb_array(fig_1.canvas)
         
             
             # Ajouter le bruit électronique : Gaussian noise, S&P , Gaussian Blur, Add_constant 
             amount_salt = np.random.uniform(min_amount_salt, max_amount_salt)
-            noisy_image = Add_Electronic_noise(image_bio_noise, amount_salt, sigma_green_ch, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch)
+            noisy_image = Add_Electronic_noise(image_bio_noise, amount_salt, sigma_green_ch, sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch)
             
             image_final = Add_Flurescent_noise(noisy_image, Flurescent_noise, pepper)
             image_final = canvas2rgb_array(image_final.canvas)
@@ -47,10 +46,7 @@ def Add_global_noise(Images_dir, Curves_paths, min_noisy_fibers, max_noisy_fiber
         
             
             
-            
-            
-            
-            
+    
             
           
 '''
@@ -62,9 +58,10 @@ max_noisy_fibers = 50
 noisy_dust = np.random.randint(50, 200)
 pepper = np.random.randint(6000, 12000)
 perlage = np.random.randint(500, 2000)
-prob = np.random.uniform(0.5, 0.9)
-max_num_perlage = 5
-max_discontuinity = 50
+prob = np.random.uniform(0.8, 1)
+# la longueur min de pixel pour avoir un perlage 
+min_N_pixels_perlage = 100
+max_lenght_perlage = 80
 #lire les fichier csv des coordonnées des courbes
 files_path1 = './Curves_data/L_U1/'
 files_path2 = './Curves_data/L_U2/'
@@ -91,7 +88,7 @@ Parasites_red_ch = 80
 
 
 #Add_flurescent_noise
-Flurescent_noise = np.random.randint(50, 200)
+Flurescent_noise = np.random.randint(100, 500)
 pepper = np.random.randint(6000, 12000)
 
 #output_dir_path
@@ -101,7 +98,6 @@ output_dir_path = './output_images/'
 Images_dir = './images/'     
 
 
-Add_global_noise(Images_dir, Curves_paths, min_noisy_fibers, max_noisy_fibers, prob, max_num_perlage, 
-                 max_discontuinity, min_amount_salt, max_amount_salt, sigma_green_ch, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch,Flurescent_noise, pepper,  output_dir_path)
+Add_global_noise(Images_dir, Curves_paths, min_noisy_fibers, max_noisy_fibers, prob, min_N_pixels_perlage, max_lenght_perlage, min_amount_salt, max_amount_salt, sigma_green_ch, sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch, Flurescent_noise, pepper, output_dir_path)
 
        
