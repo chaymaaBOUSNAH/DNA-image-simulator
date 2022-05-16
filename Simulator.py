@@ -6,6 +6,7 @@ import pandas as pd
 #import cv2
 import matplotlib as mpl
 import json
+from utils import distance
 mpl.rc('figure', max_open_warning = 0)
 
 
@@ -62,10 +63,6 @@ distx_min  = curves_characteristics['distx_min']
 disty_min = curves_characteristics['disty_min']
 distx_max = curves_characteristics['distx_max']
 disty_max = curves_characteristics['disty_max']
-
-def distance(P1, P2):
-    dist = math.sqrt((P1[0]-P2[0])**2+(P1[1]-P2[1])**2)
-    return dist
 
 # la pente des fibres sur toute les image
 
@@ -167,8 +164,7 @@ for i in range(N_images):
         last_fibre_x1.append(x1)
         last_fibre_y1.append(y1)
         # distance entre une fibre et la fibre précédente
-        dist_U_fibre = math.sqrt(abs((last_fibre_x2[j-1]-last_fibre_x2[j])**2-(last_fibre_y2[j-1]-last_fibre_y2[j])**2))
-
+        dist_U_fibre = distance((last_fibre_x2[j], last_fibre_y2[j]), (last_fibre_x2[j-1], last_fibre_y2[j-1]))
 
         distx_u = abs(last_fibre_x1[j-1]-last_fibre_x1[j])
         disty_u = abs(last_fibre_y1[j-1]-last_fibre_y1[j])
@@ -208,8 +204,7 @@ for i in range(N_images):
             P1_Analog1 = (Analog1_x1, Analog1_y1)
             P2_Analog1 = (Analog1_x2, Analog1_y2)
             
-            l_Analog1 = math.sqrt((Analog1_x2-Analog1_x1)**2-(Analog1_y2-Analog1_y1)**2)
-            
+            l_Analog1 = distance((Analog1_x1, Analog1_y1), (Analog1_x2, Analog1_y2))
             
             # Analog2
             Analog2_x1 = Analog1_x2
@@ -221,7 +216,7 @@ for i in range(N_images):
             P1_Analog2 = (Analog2_x1, Analog2_y1)
             P2_Analog2 = (Analog2_x2, Analog2_y2)
             
-            l_Analog2 = math.sqrt((Analog2_x2-Analog2_x1)**2-(Analog2_y2-Analog2_y1)**2)
+            l_Analog2 = distance((Analog2_x1, Analog2_y1), (Analog2_x2, Analog2_y2))
             l_analog = l_Analog1+l_Analog2
             
             
