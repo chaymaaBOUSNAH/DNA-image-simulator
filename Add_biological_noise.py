@@ -9,14 +9,14 @@ from os.path import join
 mpl.rc('figure', max_open_warning = 0)
 import os
 from PIL import Image
-from utils import canvas2rgb_array
+from utils import canvas2rgb_array, distance
 from utils import sorted_file
 from Draw_curves import draw_cercle, draw_bezier_curve
 
 
 
 
-def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perlage, max_num_perlage, max_discontuinity):
+def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perlage, min_N_pixels_perlage, max_lenght_perlage):
     
     image_head, image_file = os.path.split(image_path)
     image_name = image_file.split('.')
@@ -122,21 +122,27 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
         Width = Fiber_data['width'][fiber]
         Pente = Fiber_data['slop'][fiber]
         intercept = Fiber_data['b'][fiber]
+        l_fibre = distance((X1, Y1), (X2, Y2))
         
         Avec_perlage = ['true', 'false']
         Perlage = random.choices(Avec_perlage, weights=[Prob_perlage, 1-Prob_perlage])
         
         if Perlage == ['true']:
-            num_perlage = np.random.randint(0, max_num_perlage)
+            # num perlage proportionnel à la longeur de la fibre 
+            # supposant pour 100 pixels --> 1 perlage
+  
+            num_perlage = int(l_fibre/min_N_pixels_perlage)
+            
             for disc in range(num_perlage):
-                lenth = np.random.uniform(10, max_discontuinity)
-                x__1 = np.random.uniform(X1, X2-lenth)
-                x__2 = np.random.uniform(x__1, x__1+lenth)
+                lenth = np.random.uniform(10, max_lenght_perlage)
+                
+                x__1 = np.random.uniform(X1, X2)
+                #x__2 = np.random.uniform(x__1, x__1+lenth)
+                x__2 = math.sqrt(lenth/(1+Pente**2))+x__1
        
                 y__1 = Pente*x__1 + intercept
                 y__2  = Pente*x__2 + intercept
-                
-                
+            
                 plt.plot((x__1, x__2),(y__1, y__2), color= 'black', linewidth=Width+0.5)            
         
     
@@ -148,16 +154,19 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
 #Add_biological_noise
 
 
+"""
 
 
-'''
 total_noisy_fibers = np.random.randint(20, 50)
 noisy_dust = np.random.randint(50, 200)
 pepper = np.random.randint(6000, 12000)
 perlage = np.random.randint(500, 2000)
-prob = np.random.uniform(0.5, 0.9)
-max_num_perlage = 5
-max_discontuinity = 50
+prob = 1
+
+# la longueur min de pixel pour avoir un perlage 
+min_N_pixels_perlage = 100
+max_lenght_perlage = 80
+
 #lire les fichier csv des coordonnées des courbes
 files_path1 = './Curves_data/L_U1/'
 files_path2 = './Curves_data/L_U2/'
@@ -173,10 +182,9 @@ Curves_paths = [files_path1, files_path2, files_path3, files_path4,
 image_path = './images/image_6_mask.png'
 All_csv_path = [files_path1, files_path2, files_path3, files_path4, files_path5, files_path6, files_path7]
 
-fig = Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, prob, max_num_perlage, max_discontuinity)
+fig = Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, prob, min_N_pixels_perlage, max_lenght_perlage)
 img = canvas2rgb_array(fig.canvas)
 pil_image=Image.fromarray(img)
 pil_image.show()
 pil_image.save('./Essai/image_6.png')
-    
-'''
+"""
