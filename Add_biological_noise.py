@@ -16,7 +16,7 @@ from Draw_curves import draw_cercle, draw_bezier_curve
 
 
 
-def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perlage, min_N_pixels_perlage, max_lenght_perlage, noisy_points):
+def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perlage, min_N_pixels_perlage, max_lenght_perlage, pepper):
     
     image_head, image_file = os.path.split(image_path)
     image_name = image_file.split('.')
@@ -134,7 +134,7 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
             num_perlage = int(l_fibre/min_N_pixels_perlage)
             
             for disc in range(num_perlage):
-                lenth = np.random.uniform(10, max_lenght_perlage)
+                lenth = np.random.uniform(1, max_lenght_perlage)
                 
                 x__1 = np.random.uniform(X1, X2)
                 #x__2 = np.random.uniform(x__1, x__1+lenth)
@@ -145,16 +145,14 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
             
                 plt.plot((x__1, x__2),(y__1, y__2), color= 'black', linewidth=Width+0.5)            
         
-    
-    # ajouter des points coloré qui représente le bruit sur les channal en se basant sur l'analyse des images réelles sur imageJ
     #colors = ['#32CD32', '#FF34B3']
     #color = np.random.choice(colors, 1, p = [0.6, 0.4])
-    for j in range(noisy_points):
+    for j in range(pepper):
         x = np.random.uniform(0, 2048)
         y = np.random.uniform(0, 2048)
-        size = np.random.uniform(1, 20)
-        colors = ['#00FF00', '#FF34B3', 'b']
-        color = np.random.choice(colors, 1, p = [0.89, 0.1, 0.01])
+        size = np.random.uniform(0.1, 10)
+        colors = ['#00FF00', 'r', 'b']
+        color = np.random.choice(colors, 1, p = [0.5, 0.2, 0.3])
         markers = ['s', 'o']
         markr = np.random.choice(markers, 1, p=[0.6, 0.4])
         # BLUE #0000FF
@@ -164,7 +162,10 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
         # maroon1 #FF34B3 (255,52,179)
         # limegreen #32CD32 RGB(50,205,50)
         
-        plt.scatter(x, y, s=size, c=color[0], marker=markr[0])
+        plt.scatter(x, y, s=size, c=color[0], marker=markr[0])    
+    ax.set_xlim((0, image.shape[1]))
+    ax.set_ylim((image.shape[0], 0))
+    
     
     ax.set_xlim((0, image.shape[1]))
     ax.set_ylim((image.shape[0], 0))
@@ -174,9 +175,7 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
 #Add_biological_noise
 
 
-
-
-
+'''
 total_noisy_fibers = np.random.randint(20, 50)
 noisy_dust = np.random.randint(50, 200)
 noisy_points = np.random.randint(20000, 40000)
@@ -202,9 +201,10 @@ Curves_paths = [files_path1, files_path2, files_path3, files_path4,
 image_path = './images/image_6_mask.png'
 All_csv_path = [files_path1, files_path2, files_path3, files_path4, files_path5, files_path6, files_path7]
 
-fig = Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, prob, min_N_pixels_perlage, max_lenght_perlage, noisy_points)
+fig = Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, prob, min_N_pixels_perlage, max_lenght_perlage)
 img = canvas2rgb_array(fig.canvas)
 pil_image=Image.fromarray(img)
 pil_image.show()
 pil_image.save('./Essai/image_6_.png')
 
+'''
