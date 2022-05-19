@@ -14,7 +14,7 @@ from utils import sorted_file
 from Draw_curves import draw_cercle, draw_bezier_curve
 
 
-
+from pathlib import Path
 
 def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perlage, min_N_pixels_perlage, max_lenght_perlage, pepper):
     
@@ -25,17 +25,17 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
     imag = plt.imread(image_path)
     
     # curve U
-    csv1 = pd.read_csv(All_csv_path[0]+name)
-    csv2 = pd.read_csv(All_csv_path[1]+name)
+    csv1 = pd.read_csv(list(Path(All_csv_path[0]).glob(name))[0])
+    csv2 = pd.read_csv(list(Path(All_csv_path[1]).glob(name))[0])
     
     # Bezier curves
-    csv3 = pd.read_csv(All_csv_path[2]+name)
-    csv4 = pd.read_csv(All_csv_path[3]+name)
-    csv5 = pd.read_csv(All_csv_path[4]+name)
-    csv6 = pd.read_csv(All_csv_path[5]+name)
+    csv3 = pd.read_csv(list(Path(All_csv_path[2]).glob(name))[0])
+    csv4 = pd.read_csv(list(Path(All_csv_path[3]).glob(name))[0])
+    csv5 = pd.read_csv(list(Path(All_csv_path[4]).glob(name))[0])
+    csv6 = pd.read_csv(list(Path(All_csv_path[5]).glob(name))[0])
     
     # coord des fibres
-    Fiber_data = pd.read_csv(All_csv_path[6]+name)
+    Fiber_data = pd.read_csv(list(Path(All_csv_path[6]).glob(name))[0])
     
 
     image = imag[:,:, 0:3]
@@ -201,7 +201,7 @@ Curves_paths = [files_path1, files_path2, files_path3, files_path4,
 image_path = './images/image_6_mask.png'
 All_csv_path = [files_path1, files_path2, files_path3, files_path4, files_path5, files_path6, files_path7]
 
-fig = Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, prob, min_N_pixels_perlage, max_lenght_perlage)
+fig = Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, prob, min_N_pixels_perlage, max_lenght_perlage, noisy_points)
 img = canvas2rgb_array(fig.canvas)
 pil_image=Image.fromarray(img)
 pil_image.show()
