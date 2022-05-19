@@ -3,44 +3,68 @@ import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
 import random
 from Add_gaussian_2D_image import Gaussian_noise, Gaussian_noise_RGB, Add_Salt
+from PIL import Image, ImageFilter, ImageEnhance
 
 def Add_Electronic_noise(image, amount_SP, sigma_green_ch, sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch):
+    # la probabilité que le channal vert soit le channal dominant
     Prob = 0.8
+    # le bruit gaussian ajouté au début pour dégrader (diminuer la qualité des fibres)
+    sigma = np.random.randint(5, 30)
     row,col,ch= image.shape
-    
     output = (image).astype(np.uint8)
     
-    blue_channel = output[:, :, 2]
-    red_channel = output[:, :, 0]
-    green_channel = output[:, :, 1]
+    '''
+    Dégrader les fibres et les analogues sur chaque channal en ajoutant du bruit gaussian 
+    et en remplassant les valeur inférieur d'une valeurs données '
+    '''
+    output_gaussian = Gaussian_noise_RGB(output, sigma)
+    output_gaussian  = np.uint8(np.clip(output_gaussian, 0, 255))
+    red_channel = output_gaussian[:, :, 0]
+    green_channel = output_gaussian[:, :, 1]
+    blue_channel = output_gaussian[:, :, 2]
+  
+    black = np.array([0], dtype='uint8')
+    
+    red_channel[red_channel <255] = black 
+    # or use np.where(red_channel <200, 0, red_channel)
+    green_channel[green_channel <255] = black
+    blue_channel[blue_channel <200] = black
+    
 
     dominant_channel = ['green', 'red']
     choosen_channel = random.choices(dominant_channel, weights=[Prob, 1-Prob])
     
+    
+    '''Ajouter les différents type de bruit sur chaque channal separemment'''
+    
     # Ajouter les différents type de bruit sur le channal rouge
     
+    
+    if choosen_channel==['red']:
+        red_channel = Add_Salt(red_channel, amount_SP) 
+        green_channel = Add_Salt(green_channel, amount_SP*0.1) 
     #Ajouter du bruit: parasites de photons
     red_channel = red_channel + Parasites_red_ch*np.ones((row,col))
     red_channel =  Gaussian_noise(red_channel, sigma_red_channel)
     # convertir les pixel au dessus de 255 à 255
     red_channel = np.uint8(np.clip(red_channel, 0, 255))
-    if choosen_channel==['red']:
-        red_channel = Add_Salt(red_channel, amount_SP) 
+    
     # blur each channel
     red_channel = gaussian_filter(red_channel, sigma=gaussian_Blur_sigma)
      
         
     # Ajouter les différents type de bruit sur le channal vert 
-            
+    
+    # Add salt (impulsive noise) sur le channal vert
+    if choosen_channel==['green']:
+        green_channel = Add_Salt(green_channel, amount_SP)
+        #red_channel = Add_Salt(red_channel, amount_SP*0.01)
     # Ajouter du bruit: parasites de photons
     green_channel = green_channel + Parasites_green_ch*np.ones((row,col))
     green_channel =  Gaussian_noise(green_channel, sigma_green_ch)
     green_channel = np.uint8(np.clip(green_channel, 0, 255))
     #channel = channel.astype(np.uint8)
-    if choosen_channel==['green']:
-        green_channel = Add_Salt(green_channel, amount_SP)
-    else: 
-       green_channel = Add_Salt(green_channel, amount_SP*0.5)
+    
     # blur each channel
     green_channel = gaussian_filter(green_channel, sigma=gaussian_Blur_sigma)
             
@@ -51,7 +75,7 @@ def Add_Electronic_noise(image, amount_SP, sigma_green_ch, sigma_red_channel, ga
     blue_channel =  Gaussian_noise(blue_channel, sigma_red_channel)
     blue_channel = np.uint8(np.clip(blue_channel, 0, 255))
     # blur each channel
-    blue_channel = gaussian_filter(blue_channel, sigma=gaussian_Blur_sigma)
+    #blue_channel = gaussian_filter(blue_channel, sigma=gaussian_Blur_sigma)
         
     # concatener tous les chanaux
     noisy = np.dstack((red_channel, green_channel, blue_channel))
@@ -59,9 +83,9 @@ def Add_Electronic_noise(image, amount_SP, sigma_green_ch, sigma_red_channel, ga
     return noisy
 
 
-
 '''
 from PIL import Image, ImageFilter
+
 amount_SP = 0.1
 sigma_green_channel =1
 sigma_red_channel = 0.1
