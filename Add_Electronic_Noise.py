@@ -2,12 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
 import random
-from Add_gaussian_2D_image import Gaussian_noise, Gaussian_noise_RGB, Add_Salt
-from PIL import Image, ImageFilter, ImageEnhance
+from Electronic_Noise_Functions import degraded_fibers, Add_glow, Gaussian_noise, Gaussian_noise_RGB, Add_Salt
 
-def Add_Electronic_noise(image, amount_SP, sigma_green_ch, sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch):
+
+def Add_Electronic_noise(image, glue_dir, prob_glow, amount_SP, sigma_green_ch, sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch):
     # la probabilité que le channal vert soit le channal dominant
-    Prob = 0.8
+    Prob = 0.9
     # le bruit gaussian ajouté au début pour dégrader (diminuer la qualité des fibres)
     sigma = np.random.randint(5, 30)
     row,col,ch= image.shape
@@ -17,23 +17,20 @@ def Add_Electronic_noise(image, amount_SP, sigma_green_ch, sigma_red_channel, ga
     Dégrader les fibres et les analogues sur chaque channal en ajoutant du bruit gaussian 
     et en remplassant les valeur inférieur d'une valeurs données '
     '''
-    output_gaussian = Gaussian_noise_RGB(output, sigma)
-    output_gaussian  = np.uint8(np.clip(output_gaussian, 0, 255))
-    red_channel = output_gaussian[:, :, 0]
-    green_channel = output_gaussian[:, :, 1]
-    blue_channel = output_gaussian[:, :, 2]
-  
-    black = np.array([0], dtype='uint8')
     
-    red_channel[red_channel <255] = black 
-    # or use np.where(red_channel <200, 0, red_channel)
-    green_channel[green_channel <255] = black
-    blue_channel[blue_channel <200] = black
+    output = degraded_fibers(output, sigma)  
     
+    '''
+    Coller des morceau de taches flurescentes copiées des images réelles
+    '''
+    output = Add_glow(output, glue_dir, prob_glow)
 
     dominant_channel = ['green', 'red']
     choosen_channel = random.choices(dominant_channel, weights=[Prob, 1-Prob])
     
+    red_channel = output[:, :, 0]
+    green_channel = output[:, :, 1]
+    blue_channel = output[:, :, 2]
     
     '''Ajouter les différents type de bruit sur chaque channal separemment'''
     
@@ -70,12 +67,12 @@ def Add_Electronic_noise(image, amount_SP, sigma_green_ch, sigma_red_channel, ga
             
     
     # Ajouter les différents type de bruit sur le channal bleu
-        
+    blue_channel = gaussian_filter(blue_channel, sigma=gaussian_Blur_sigma*2)    
     blue_channel = blue_channel + (Parasites_green_ch/2)*np.ones((row,col))
     blue_channel =  Gaussian_noise(blue_channel, sigma_red_channel)
     blue_channel = np.uint8(np.clip(blue_channel, 0, 255))
     # blur each channel
-    #blue_channel = gaussian_filter(blue_channel, sigma=gaussian_Blur_sigma)
+    
         
     # concatener tous les chanaux
     noisy = np.dstack((red_channel, green_channel, blue_channel))
@@ -86,6 +83,10 @@ def Add_Electronic_noise(image, amount_SP, sigma_green_ch, sigma_red_channel, ga
 '''
 from PIL import Image, ImageFilter
 
+# Add glow 
+glue_dir = './glow/'
+prob_glow = 0.9
+
 amount_SP = 0.1
 sigma_green_channel =1
 sigma_red_channel = 0.1
@@ -93,13 +94,13 @@ gaussian_Blur_sigma = 0.6
 Parasites_green_ch = 40
 Parasites_red_ch =50
 
-image_path = './Essai/image_0.png'
+image_path = './Essai/image_6_.png'
 image = plt.imread(image_path)
 image = image[:, :, :3]
 image = image*255
 Prob = 0.5
 
-noisy = Add_Electronic_noise(image, amount_SP, sigma_green_channel,sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch)
+noisy = Add_Electronic_noise(image, glue_dir, prob_glow, amount_SP, sigma_green_channel,sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch)
 #noisy = (noisy*255).astype(np.uint8)
 radius = np.random.uniform(1, 2)  
 print('radius', radius)
@@ -107,5 +108,5 @@ pil_image=Image.fromarray(noisy)
 pil_image = pil_image.filter(ImageFilter.GaussianBlur(radius = radius))
 
 pil_image.show()
-pil_image.save('./Essai/image_0_1.png')
+#pil_image.save('./Essai/image_0_1.png')
 '''
