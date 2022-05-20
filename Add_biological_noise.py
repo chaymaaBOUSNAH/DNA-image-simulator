@@ -3,10 +3,6 @@ import matplotlib.pyplot as plt
 import math  
 import random
 import pandas as pd
-import matplotlib as mpl
-from os import walk
-from os.path import join
-mpl.rc('figure', max_open_warning = 0)
 import os
 from PIL import Image
 from utils import canvas2rgb_array, distance
@@ -24,18 +20,36 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
     
     imag = plt.imread(image_path)
     
+    # File loading
+    
     # curve U
-    csv1 = pd.read_csv(list(Path(All_csv_path[0]).glob(name))[0])
-    csv2 = pd.read_csv(list(Path(All_csv_path[1]).glob(name))[0])
+    File_curve_U1 = list(Path(All_csv_path[0]).glob(name))[0]
+    File_curve_U2 = list(Path(All_csv_path[1]).glob(name))[0]
+    
+    #assert len(File_curve_U1) == 1 and len(File_curve_U1) == 1, f'Either no file or multiple files found for the file {File_curve_U1} or {File_curve_U1}'
+    
+    csv1 = pd.read_csv(File_curve_U1)
+    csv2 = pd.read_csv(File_curve_U2)
     
     # Bezier curves
-    csv3 = pd.read_csv(list(Path(All_csv_path[2]).glob(name))[0])
-    csv4 = pd.read_csv(list(Path(All_csv_path[3]).glob(name))[0])
-    csv5 = pd.read_csv(list(Path(All_csv_path[4]).glob(name))[0])
-    csv6 = pd.read_csv(list(Path(All_csv_path[5]).glob(name))[0])
+    File_Bezier1 = list(Path(All_csv_path[2]).glob(name))[0]
+    File_Bezier2 = list(Path(All_csv_path[3]).glob(name))[0]
+    File_Bezier3 = list(Path(All_csv_path[4]).glob(name))[0]
+    File_Bezier4 = list(Path(All_csv_path[5]).glob(name))[0]
+    
+    csv3 = pd.read_csv(File_Bezier1)
+    csv4 = pd.read_csv(File_Bezier2)
+    csv5 = pd.read_csv(File_Bezier3)
+    csv6 = pd.read_csv(File_Bezier4)
+    
+    #assert len(File_Bezier1) == 1 and len(File_Bezier2) == 1 and len(File_Bezier3) == 1 and len(File_Bezier4) == 1, 'Either no file or multiple files found for the one of the files of bezier coordonates'
+    
     
     # coord des fibres
-    Fiber_data = pd.read_csv(list(Path(All_csv_path[6]).glob(name))[0])
+    File_Fibers = list(Path(All_csv_path[6]).glob(name))[0]
+    Fiber_data = pd.read_csv(File_Fibers)
+    
+    #assert len(File_Fibers) == 1 , f'Either no file or multiple files found for the one of the files fibers coordonates{File_Fibers}'
     
 
     image = imag[:,:, 0:3]
@@ -134,11 +148,11 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
             num_perlage = int(l_fibre/min_N_pixels_perlage)
             
             for disc in range(num_perlage):
-                lenth = np.random.uniform(1, max_lenght_perlage)
+                lenth = np.random.randint(1, max_lenght_perlage)
                 
                 x__1 = np.random.uniform(X1, X2)
                 #x__2 = np.random.uniform(x__1, x__1+lenth)
-                x__2 = math.sqrt(lenth/(1+Pente**2))+x__1
+                x__2 = math.sqrt(lenth**2/(1+Pente**2))+x__1
        
                 y__1 = Pente*x__1 + intercept
                 y__2  = Pente*x__2 + intercept
@@ -150,7 +164,7 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
     for j in range(pepper):
         x = np.random.uniform(0, 2048)
         y = np.random.uniform(0, 2048)
-        size = np.random.uniform(0.1, 10)
+        size = np.random.uniform(0.1, 7)
         colors = ['#00FF00', 'r', 'b']
         color = np.random.choice(colors, 1, p = [0.5, 0.2, 0.3])
         markers = ['s', 'o']
@@ -184,7 +198,7 @@ prob = 1
 
 # la longueur min de pixel pour avoir un perlage 
 min_N_pixels_perlage = 100
-max_lenght_perlage = 80
+max_lenght_perlage = 10
 
 #lire les fichier csv des coordonnées des courbes
 files_path1 = './Curves_data/L_U1/'
