@@ -32,22 +32,31 @@ def Gaussian_noise_RGB(image, sigma):
 
 
 
-def Add_Salt(image, amount):
+def Add_Salt(image, amount, noise_value):
     row,col=  image.shape
-    # pourcentage de bruit salt& pepper à ajouter
-    # Add Salt 
-    # ceil return the smallest integer of a float 
-    num_salt = np.ceil(amount * image.size)
     
-    # choisir aléatopirement les coordonnées ou on va mettre salt 
-    coord = [np.random.randint(0, i-1, int(num_salt)) for i in image.shape]
-    
+    N_salt = np.ceil(amount*image.size)
+    # la taille de carré de pixel est n*n
+    n = np.random.randint(2, 6)
+    # choisir aléatopirement les coordonnées à partir de l'image ou on va mettre salt 
+    coord = [np.random.randint(0, i-1, int(N_salt)) for i in (row-n, col-n)]
     x, y = coord
     
+    for k in range(len(x)):
+        for i in range(n):
+            for j in range(n):
+                pixels_coord = (x[k]+i, y[k]+j)  
+              
+                image[pixels_coord] = noise_value
+   
+        
 
-    #coords = np.array(coord)
-    image[(x, y)] = 255
-    
+    '''
+    image[(x, y)] = noise_value
+    image[(x+1, y)] = noise_value
+    image[(x, y+1)] = noise_value
+    image[(x+1, y+1)] = noise_value
+    '''
     return image
 
 
