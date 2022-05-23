@@ -7,18 +7,21 @@ from Electronic_Noise_Functions import degraded_fibers, Add_glow, Gaussian_noise
 
 def Add_Electronic_noise(image, glue_dir, prob_glow, amount_SP, sigma_green_ch, sigma_red_channel, gaussian_Blur_sigma, Parasites_green_ch, Parasites_red_ch):
     # la probabilité que le channal vert soit le channal dominant
-    Prob = 0.9
+    Prob = 1
     # le bruit gaussian ajouté au début pour dégrader (diminuer la qualité des fibres)
     sigma = np.random.randint(5, 30)
     row,col,ch= image.shape
-    output = (image).astype(np.uint8)
+    
+    
+    assert np.amax(image)==255 and np.amin(image)==0, 'values are not in the range [0 255], normalise image values'
+    
     
     '''
     Dégrader les fibres et les analogues sur chaque channal en ajoutant du bruit gaussian 
     et en remplassant les valeur inférieur d'une valeurs données '
     '''
     
-    output = degraded_fibers(output, sigma)  
+    output = degraded_fibers(image, sigma)  
     
     '''
     Coller des morceau de taches flurescentes copiées des images réelles
@@ -38,8 +41,8 @@ def Add_Electronic_noise(image, glue_dir, prob_glow, amount_SP, sigma_green_ch, 
     
     
     if choosen_channel==['red']:
-        red_channel = Add_Salt(red_channel, amount_SP) 
-        green_channel = Add_Salt(green_channel, amount_SP*0.1) 
+        red_channel = Add_Salt(red_channel, amount_SP, noise_value=128) 
+        green_channel = Add_Salt(green_channel, amount_SP*0.1, noise_value=128)  
     #Ajouter du bruit: parasites de photons
     red_channel = red_channel + Parasites_red_ch*np.ones((row,col))
     red_channel =  Gaussian_noise(red_channel, sigma_red_channel)
@@ -53,12 +56,14 @@ def Add_Electronic_noise(image, glue_dir, prob_glow, amount_SP, sigma_green_ch, 
     # Ajouter les différents type de bruit sur le channal vert 
     
     # Add salt (impulsive noise) sur le channal vert
-    if choosen_channel==['green']:
-        green_channel = Add_Salt(green_channel, amount_SP)
-        #red_channel = Add_Salt(red_channel, amount_SP*0.01)
+    
     # Ajouter du bruit: parasites de photons
     green_channel = green_channel + Parasites_green_ch*np.ones((row,col))
     green_channel =  Gaussian_noise(green_channel, sigma_green_ch)
+    
+    if choosen_channel==['green']:
+        green_channel = Add_Salt(green_channel, amount_SP, noise_value=128)
+        #red_channel = Add_Salt(red_channel, amount_SP*0.01)
     green_channel = np.uint8(np.clip(green_channel, 0, 255))
     #channel = channel.astype(np.uint8)
     
@@ -67,10 +72,11 @@ def Add_Electronic_noise(image, glue_dir, prob_glow, amount_SP, sigma_green_ch, 
             
     
     # Ajouter les différents type de bruit sur le channal bleu
-    blue_channel = gaussian_filter(blue_channel, sigma=gaussian_Blur_sigma*2)    
+    blue_channel = gaussian_filter(blue_channel, sigma=gaussian_Blur_sigma)    
     blue_channel = blue_channel + (Parasites_green_ch/2)*np.ones((row,col))
     blue_channel =  Gaussian_noise(blue_channel, sigma_red_channel)
     blue_channel = np.uint8(np.clip(blue_channel, 0, 255))
+    blue_channel = gaussian_filter(blue_channel, sigma=gaussian_Blur_sigma) 
     # blur each channel
     
         
