@@ -32,19 +32,17 @@ def Gaussian_noise_RGB(image, sigma):
 
 
 
-def Add_Salt(image, amount, noise_value):
+def Add_Salt(image, amount, noise_value, size):
     row,col=  image.shape
-    
+    # size la taille en pixel si 4 alors squre == 4X4
     N_salt = np.ceil(amount*image.size)
-    # la taille de carré de pixel est n*n
-    n = np.random.randint(2, 6)
     # choisir aléatopirement les coordonnées à partir de l'image ou on va mettre salt 
-    coord = [np.random.randint(0, i-1, int(N_salt)) for i in (row-n, col-n)]
+    coord = [np.random.randint(0, i-1, int(N_salt)) for i in (row-size, col-size)]
     x, y = coord
     
     for k in range(len(x)):
-        for i in range(n):
-            for j in range(n):
+        for i in range(size):
+            for j in range(size):
                 pixels_coord = (x[k]+i, y[k]+j)  
               
                 image[pixels_coord] = noise_value
@@ -77,7 +75,7 @@ def degraded_fibers(image, sigma):
     red_channel[red_channel <255] = black 
     # or use np.where(red_channel <200, 0, red_channel)
     green_channel[green_channel <255] = black
-    blue_channel[blue_channel <250] = black
+    blue_channel[blue_channel <255] = black
     
     result_image = np.dstack((red_channel, green_channel, blue_channel))
         
@@ -99,8 +97,8 @@ def Add_glow(image, glue_dir, prob):
             random_glue = random.sample(file_names, n)
             for glue in random_glue:
                 
-                glue_h = np.random.randint(20, 150) 
-                glue_w = np.random.randint(20, 150) 
+                glue_h = np.random.randint(50, 150) 
+                glue_w = np.random.randint(50, 150) 
                 glue_path = join(dir_path, glue)
                 glue_img = Image.open(glue_path)
                 
