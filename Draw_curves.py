@@ -3,11 +3,11 @@ from Bezier_curve import Bezier
 
 
 # dessiner du bruit en forme de u entre deux fibre 
-#choisit selon des condition lors de la création initiale des images
+# choisit selon des condition lors de la création initiale des images
 
 def draw_cercle(P1, P2):
-    x1, y1 = P1[0], P1[1]
-    x2, y2 = P2[0], P2[1]
+    x1, y1 = P1[1], P1[0]
+    x2, y2 = P2[1], P2[0]
     diameter = ((x2 - x1)**2 + (y2 - y1)**2) ** 0.5
     r = diameter / 2
     xC, yC = (x1 + x2) / 2.0, (y1 + y2) / 2.0
