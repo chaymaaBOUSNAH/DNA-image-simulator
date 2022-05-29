@@ -7,52 +7,29 @@ import os
 from PIL import Image
 from utils import canvas2rgb_array, distance
 from utils import sorted_file
+from curves import extract_curves_coords
 from Draw_curves import draw_cercle, draw_bezier_curve
-
-
 from pathlib import Path
 
-def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perlage, min_N_pixels_perlage, max_lenght_perlage, pepper):
+
+def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, Prob_perlage, min_N_pixels_perlage, max_lenght_perlage, pepper):
     
-    image_head, image_file = os.path.split(image_path)
     image_name = image_file.split('.')
     name = image_name[0]
     
-    imag = plt.imread(image_path)
     
     # File loading
     
-    # curve U
-    File_curve_U1 = list(Path(All_csv_path[0]).glob(name))[0]
-    File_curve_U2 = list(Path(All_csv_path[1]).glob(name))[0]
-    
-    #assert len(File_curve_U1) == 1 and len(File_curve_U1) == 1, f'Either no file or multiple files found for the file {File_curve_U1} or {File_curve_U1}'
-    
-    csv1 = pd.read_csv(File_curve_U1)
-    csv2 = pd.read_csv(File_curve_U2)
-    
-    # Bezier curves
-    File_Bezier1 = list(Path(All_csv_path[2]).glob(name))[0]
-    File_Bezier2 = list(Path(All_csv_path[3]).glob(name))[0]
-    File_Bezier3 = list(Path(All_csv_path[4]).glob(name))[0]
-    File_Bezier4 = list(Path(All_csv_path[5]).glob(name))[0]
-    
-    csv3 = pd.read_csv(File_Bezier1)
-    csv4 = pd.read_csv(File_Bezier2)
-    csv5 = pd.read_csv(File_Bezier3)
-    csv6 = pd.read_csv(File_Bezier4)
-    
-    #assert len(File_Bezier1) == 1 and len(File_Bezier2) == 1 and len(File_Bezier3) == 1 and len(File_Bezier4) == 1, 'Either no file or multiple files found for the one of the files of bezier coordonates'
-    
-    
     # coord des fibres
-    File_Fibers = list(Path(All_csv_path[6]).glob(name))[0]
+    File_Fibers = list(Path(csv_path).glob(name))[0]
     Fiber_data = pd.read_csv(File_Fibers)
     
     #assert len(File_Fibers) == 1 , f'Either no file or multiple files found for the one of the files fibers coordonates{File_Fibers}'
     
-
-    image = imag[:,:, 0:3]
+    # extract curves coordonates:
+    l1_u, l2_u, courbe_11, courbe_12, courbe_21,courbe_22 = extract_curves_coords(Fiber_data)
+    
+    image = image[:,:, 0:3]
     
     #Create figure 
     
@@ -66,37 +43,34 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
     
     Add_U_curve = ['true', 'false']
     Adding_curve = random.choices(Add_U_curve, weights=[0.7, 0.3])
-    if np.size(csv1) !=0 and Adding_curve==['true']:
-        for k in range(len(csv1)):
+    if np.size(l1_u) !=0 and Adding_curve==['true']:
+        for k in range(len(l1_u)):
             
-            x1, x2 = csv1['X'][k], csv2['X'][k]
-            y1, y2 = csv1['Y'][k], csv2['Y'][k]
+            p1, p2 = l1_u[k], l2_u[k]
       
-            x_cercle, y_cercle = draw_cercle((y2, x2), (y1,x1))
+            x_cercle, y_cercle = draw_cercle(p1, p2)
             plt.plot(y_cercle, x_cercle,  color = 'b', linewidth=5)
     
     Add_Bezier_curve = ['true', 'false']
     Adding_Bezier_curve = random.choices(Add_Bezier_curve, weights=[0.7, 0.3])
-    if np.size(csv3) !=0 and Adding_Bezier_curve==['true']:
-        for k in range(len(csv3)):
+    if np.size(courbe_11) !=0 and Adding_Bezier_curve==['true']:
+        for k in range(len(courbe_11)):
             
-            x_11, x_12 = csv3['X'][k], csv4['X'][k]
-            y_11, y_12 = csv3['Y'][k], csv4['Y'][k]
-          
-            curve1 = draw_bezier_curve((x_11, y_11), (x_12, y_12), C = 'C1')
+            p_11, p_12 = courbe_11[k], courbe_12[k]
+           
+            curve1 = draw_bezier_curve(p_11, p_12, C = 'C1')
 
             plt.plot(
             	curve1[:, 0],   # x-coordinates.
             	curve1[:, 1],    # y-coordinates.
                 color = 'b', linewidth=5)
             
-    if np.size(csv5) !=0 and Adding_Bezier_curve==['true']:
-        for k in range(len(csv5)):
+    if np.size(courbe_21) !=0 and Adding_Bezier_curve==['true']:
+        for k in range(len(courbe_21)):
             
-            x_21, x_22 = csv5['X'][k], csv6['X'][k]
-            y_21, y_22 = csv5['Y'][k], csv6['Y'][k]
+            p_21, p_22 = courbe_21[k], courbe_22[k]
           
-            curve2 = draw_bezier_curve((x_21, y_21), (x_22, y_22), C = 'C2')
+            curve2 = draw_bezier_curve(p_21, p_22, C = 'C2')
 
             plt.plot(
             	curve2[:, 0],   # x-coordinates.
@@ -164,9 +138,9 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
     for j in range(pepper):
         x = np.random.uniform(0, 2048)
         y = np.random.uniform(0, 2048)
-        size = np.random.uniform(0.1, 7)
-        colors = ['#00FF00', 'r', 'b']
-        color = np.random.choice(colors, 1, p = [0.5, 0.2, 0.3])
+        size = np.random.uniform(1, 7)
+        colors = ['#00FF00', 'b']
+        color = np.random.choice(colors, 1, p = [0.7, 0.3])
         markers = ['s', 'o']
         markr = np.random.choice(markers, 1, p=[0.6, 0.4])
         # BLUE #0000FF
@@ -188,37 +162,28 @@ def Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, Prob_perl
 # le nombre de discontinuité à effecter sur chaque fibre  
 #Add_biological_noise
 
-
 '''
+
 total_noisy_fibers = np.random.randint(20, 50)
 noisy_dust = np.random.randint(50, 200)
-noisy_points = np.random.randint(20000, 40000)
 perlage = np.random.randint(500, 2000)
 prob = 1
 
 # la longueur min de pixel pour avoir un perlage 
 min_N_pixels_perlage = 100
-max_lenght_perlage = 10
+max_lenght_perlage = 80
 
 #lire les fichier csv des coordonnées des courbes
-files_path1 = './Curves_data/L_U1/'
-files_path2 = './Curves_data/L_U2/'
-files_path3 = './Curves_data/L_C11/'    
-files_path4 = './Curves_data/L_C12/' 
-files_path5 = './Curves_data/L_C21/' 
-files_path6 = './Curves_data/L_C22/' 
-files_path7 = './fibres_data/' 
 
-Curves_paths = [files_path1, files_path2, files_path3, files_path4,
-                files_path5, files_path6, files_path7]
+csv_path = './fibers_coords' 
 
-image_path = './images/image_6_mask.png'
-All_csv_path = [files_path1, files_path2, files_path3, files_path4, files_path5, files_path6, files_path7]
+pepper = 1000   
 
-fig = Add_biological_noise(image_path, All_csv_path, total_noisy_fibers, prob, min_N_pixels_perlage, max_lenght_perlage, noisy_points)
+image_path = './simulated_images/image_0_mask.png'
+
+fig = Add_biological_noise(image_path, csv_path, total_noisy_fibers, prob, min_N_pixels_perlage, max_lenght_perlage, pepper)
 img = canvas2rgb_array(fig.canvas)
 pil_image=Image.fromarray(img)
 pil_image.show()
-pil_image.save('./Essai/image_6_.png')
 
 '''
