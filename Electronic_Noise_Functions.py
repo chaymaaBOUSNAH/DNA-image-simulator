@@ -22,7 +22,6 @@ def Gaussian_noise_RGB(image, sigma):
    row,col,ch= image.shape
    mean = 0# Mean (“centre”) of the distribution.
 
-   sigma = np.random.uniform(0.2, 0.7)
    "Draw random samples from a normal (Gaussian) distribution."
    # row * col * ch samples are drawn
    gauss = np.random.normal(mean,sigma,(row,col,ch)) 
@@ -30,6 +29,19 @@ def Gaussian_noise_RGB(image, sigma):
    noisy = image + gauss
    return noisy
 
+def get_gradient_2d(start, stop, width, height, is_horizontal):
+    if is_horizontal:
+        return np.tile(np.linspace(start, stop, width), (height, 1))
+    else:
+        return np.tile(np.linspace(start, stop, height), (width, 1)).T
+    
+def get_gradient_3d(width, height, start_list, stop_list, is_horizontal_list):
+    result = np.zeros((height, width, len(start_list)), dtype=np.float64)
+
+    for i, (start, stop, is_horizontal) in enumerate(zip(start_list, stop_list, is_horizontal_list)):
+        result[:, :, i] = get_gradient_2d(start, stop, width, height, is_horizontal)
+
+    return result
 
 
 def Add_Salt(image, amount, noise_value, size):
@@ -46,15 +58,6 @@ def Add_Salt(image, amount, noise_value, size):
                 pixels_coord = (x[k]+i, y[k]+j)  
               
                 image[pixels_coord] = noise_value
-   
-        
-
-    '''
-    image[(x, y)] = noise_value
-    image[(x+1, y)] = noise_value
-    image[(x, y+1)] = noise_value
-    image[(x+1, y+1)] = noise_value
-    '''
     return image
 
 
@@ -97,8 +100,8 @@ def Add_glow(image, glue_dir, prob):
             random_glue = random.sample(file_names, n)
             for glue in random_glue:
                 
-                glue_h = np.random.randint(50, 150) 
-                glue_w = np.random.randint(50, 150) 
+                glue_h = np.random.randint(20, 150) 
+                glue_w = np.random.randint(20, 150) 
                 glue_path = join(dir_path, glue)
                 glue_img = Image.open(glue_path)
                 
