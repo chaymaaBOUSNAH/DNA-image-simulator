@@ -78,7 +78,7 @@ def degraded_fibers(image, sigma):
     red_channel[red_channel <255] = black 
     # or use np.where(red_channel <200, 0, red_channel)
     green_channel[green_channel <255] = black
-    blue_channel[blue_channel <255] = black
+    blue_channel[blue_channel <250] = black
     
     result_image = np.dstack((red_channel, green_channel, blue_channel))
         
