@@ -7,12 +7,13 @@ import os
 from PIL import Image
 from utils import canvas2rgb_array, distance
 from utils import sorted_file
-from curves import extract_curves_coords
-from Draw_curves import draw_cercle, draw_bezier_curve
+from Draw_curves import extract_curves_coords, draw_cercle, draw_bezier_curve
 from pathlib import Path
-
+import time
 
 def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, Prob_perlage, min_N_pixels_perlage, max_lenght_perlage, pepper):
+    start_time = time.time()
+    assert np.amax(image)==255 and np.amin(image)==0,  'values are not in the range [0 255], normalise image values'
     
     image_name = image_file.split('.')
     name = image_name[0]
@@ -139,30 +140,34 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, Prob_p
         x = np.random.uniform(0, 2048)
         y = np.random.uniform(0, 2048)
         size = np.random.uniform(1, 7)
-        colors = ['#00FF00', 'b']
-        color = np.random.choice(colors, 1, p = [0.7, 0.3])
+        #colors = ['#00FF00', 'b']
+        #color = np.random.choice(colors, 1, p = [0.6, 0.4])
         markers = ['s', 'o']
         markr = np.random.choice(markers, 1, p=[0.6, 0.4])
-        # BLUE #0000FF
-        # magenta #FF00FF: (255,0,255) # Aqua 00FFFF:(0,255,255)
-        # GREENYELLOW #ADFF2F (173,255,47)
-        # olivedrab1 #C0FF3E (192,255,62)
-        # maroon1 #FF34B3 (255,52,179)
-        # limegreen #32CD32 RGB(50,205,50)
+        plt.scatter(x, y, s=size, c='#00FF00', marker=markr[0])    
+    for j in range(pepper):
+        x = np.random.uniform(0, 2048)
+        y = np.random.uniform(0, 2048)
+        size = np.random.uniform(6, 20)
+        markers = ['s', 'o']
+        markr = np.random.choice(markers, 1, p=[0.6, 0.4])
         
-        plt.scatter(x, y, s=size, c=color[0], marker=markr[0])    
+        plt.scatter(x, y, s=size, c='#0000FF', marker=markr[0])   
+        
+        
     ax.set_xlim((0, image.shape[1]))
     ax.set_ylim((image.shape[0], 0))
     
     
     ax.set_xlim((0, image.shape[1]))
     ax.set_ylim((image.shape[0], 0))
-    
-    return fig
+    print('Biological noise', "--- %s seconds ---" % (time.time() - start_time))  
+    return canvas2rgb_array(fig.canvas) 
 # le nombre de discontinuité à effecter sur chaque fibre  
 #Add_biological_noise
 
 '''
+# tester la fonction
 
 total_noisy_fibers = np.random.randint(20, 50)
 noisy_dust = np.random.randint(50, 200)
