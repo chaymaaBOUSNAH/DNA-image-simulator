@@ -13,16 +13,26 @@ Noise_parameters = {
     },
     
     "Add_Electrnic_noise": {
+        "prob_green_dominant" : 0.8,
         "min_amount_salt": 0.005,
         "max_amount_salt": 0.05,
+        "min_size_noise" : 2,
+        "max_size_noise" : 4,
+        "min_val_salt" : 80,
+        "max_val_salt" : 200,
         "min_sigma_Gaussian_noise": 5,
         "max_sigma_Gaussian_noise": 15,
         "max_gaussian_Blur_sigma": 1,
         "Parasites_green_ch": 70,
         "Parasites_red_ch": 100,
         "Parasites_blue_ch": 40,
-        "prob_glow": 0.5,
+        "prob_glow": 0.1,
         "Prob_change_intensity": 0.5,
+        "gradient_value" : 30,
+        "number_psf_max" : 5,
+        "Prob_Add_PSF": 0.9,
+        "psf_min" : 5,
+        "psf_max" : 20,
         
     },
     
