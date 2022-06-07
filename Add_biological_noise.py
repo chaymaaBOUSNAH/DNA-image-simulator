@@ -11,7 +11,7 @@ from Draw_curves import extract_curves_coords, draw_cercle, draw_bezier_curve
 from pathlib import Path
 import time
 
-def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, Prob_perlage, min_N_pixels_perlage, max_lenght_perlage, pepper):
+def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Prob_perlage, max_Prob_perlage, min_N_pixels_perlage, max_lenght_perlage, pepper):
     start_time = time.time()
     assert np.amax(image)==255 and np.amin(image)==0,  'values are not in the range [0 255], normalise image values'
     
@@ -113,13 +113,13 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, Prob_p
         intercept = Fiber_data['b'][fiber]
         l_fibre = distance((X1, Y1), (X2, Y2))
         
-        Avec_perlage = ['true', 'false']
-        Perlage = random.choices(Avec_perlage, weights=[Prob_perlage, 1-Prob_perlage])
+        Prob_perlage = np.random.uniform(min_Prob_perlage, max_Prob_perlage)
+        Perlage = random.choices(['true', 'false'], weights=[Prob_perlage, 1-Prob_perlage])
         
         if Perlage == ['true']:
-            # num perlage proportionnel à la longeur de la fibre 
+           
+            # nombre de discontinuité dans une fibre -> proportionnel à la longeur de la fibre 
             # supposant pour 100 pixels --> 1 perlage
-  
             num_perlage = int(l_fibre/min_N_pixels_perlage)
             
             for disc in range(num_perlage):
