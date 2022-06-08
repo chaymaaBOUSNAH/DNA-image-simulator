@@ -1,5 +1,5 @@
 import json
-"""
+
 Config_parameters = {
     "images_Number" : 50,
     
@@ -18,22 +18,15 @@ Config_parameters = {
     },
 
      "Analog_characteristics": {
-        "lmin_Analog": 20,
-        "lmax_Analog": 40,
-        "l_max_pair_analog": 80,
+        "lmin_Analog": 40,
+        "lmax_Analog": 150,
+        "l_max_pair_analog": 300,
         "N_max_pair_analog": 3,
-        "diff_l_analg": 30,
-        "l_min_fibre_with_analog": 200,
+        "diff_l_analg": 50,
+        "l_min_fibre_with_analog": 400,
     },
     
-    "curves_characteristics": {
-        "distU_X": 10,
-        "distU_Y": 300,
-        "distx_min": 30,
-        "disty_min": 10,
-        "distx_max": 100,
-        "disty_max": 100,
-    },
+
 }
 
 
@@ -41,22 +34,7 @@ Config_parameters = json.dumps(Config_parameters)
 print(Config_parameters)
 
 # Using a JSON string
-with open('Config_parameters.json', 'w') as outfile:
+with open('Simulator_Config_parameters.json', 'w') as outfile:
     outfile.write(Config_parameters)
     
-  
-"""
-# Reading JSON from a File with Python
-with open('Config_parameters.json') as json_file:
-    data = json.load(json_file)
-    print(data)
 
-new_output = list(data.values())
-print(" all values in dictionary are:",new_output)
-for new_value in data.items():
-    print('key & value', new_value)
-
-
-image_characteristics = data['image_characteristics']
-image_width = image_characteristics['image_width']
-print(image_width)

@@ -9,7 +9,9 @@ Noise_parameters = {
         "min_Prob_perlage": 0.5,
         "max_Prob_perlage": 1,
         "min_N_pixels_perlage": 50,
-        "max_lenght_perlage": 5
+        "max_lenght_perlage": 5,
+        "min_noisy_points": 1000,
+        "max_noisy_points": 3000,
     },
     
     "Add_Electrnic_noise": {
@@ -36,13 +38,6 @@ Noise_parameters = {
         
     },
     
-    "Add_flurescent_noise": {
-        "min_Flurescent_noise": 50,
-        "max_Flurescent_noise": 100,
-        "min_noisy_points": 100,
-        "max_noisy_points": 1000,
-    
-    },
 
      "Path": {
         "csv_path": './fibers_coords',
