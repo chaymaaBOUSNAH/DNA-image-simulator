@@ -6,7 +6,7 @@ from .Electronic_Noise_Functions import *
 import time
 
 
-def Add_Electronic_noise(image, glue_dir, prob_glow, prob_green_dominant, amount_SP, min_size_noise, max_size_noise, min_val_salt, max_val_salt,sigma_Gaussian_noise, 
+def Add_Electronic_noise(image, prob_green_dominant, amount_SP, min_size_noise, max_size_noise, min_val_salt, max_val_salt,sigma_Gaussian_noise, 
                          gaussian_Blur_sigma, Parasites_blue_ch, Parasites_green_ch, Parasites_red_ch, Prob_change_intensity,gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max):
     start_time = time.time()
     
@@ -23,10 +23,6 @@ def Add_Electronic_noise(image, glue_dir, prob_glow, prob_green_dominant, amount
     sigma = np.random.randint(10, 50)  
     image = degraded_fibers(image, sigma)  
     
-    '''
-    Coller des morceau de taches flurescentes copiées des images réelles
-    '''
-    image = Add_glow(image, glue_dir, prob_glow)
     
     '''
     Ajouter les différents type de bruit sur chaque channal separemment: Salt, Gaussian noise, Blur
@@ -103,45 +99,3 @@ def Add_Electronic_noise(image, glue_dir, prob_glow, prob_green_dominant, amount
 
 
 from PIL import Image, ImageFilter
-'''
-# Add glow 
-glue_dir = './glow/'
-prob_glow = 0.1
-prob_green_dominant = 0.8
-amount_SP = 0.01
-min_size_noise = 2
-max_size_noise = 4
-min_val_salt = 80
-max_val_salt = 200
-sigma_Gaussian_noise =10
-
-gaussian_Blur_sigma = 0.5
-Parasites_green_ch = 60
-Parasites_red_ch =80
-Parasites_blue_ch = 30
-
-image_path = './image_6_mask.png'
-image = plt.imread(image_path)
-image = image[:, :, :3]
-image = image*255
-
-Prob_change_intensity = 0.9
-gradient_value = 30
-Prob_Add_PSF = 0.9
-number_psf_max = 5
-# a: la hauteur du picle, m: la position du centre du pic, s: sigma, indice 1 et 2 --> selon x et y
-# les plages des valeurs ont été choisi après plusieurs essais
-psf_min = 5
-psf_max = 20
-
-
-noisy = Add_Electronic_noise(image, glue_dir, prob_glow, prob_green_dominant, amount_SP, min_size_noise, max_size_noise, min_val_salt, max_val_salt,sigma_Gaussian_noise, 
-                         gaussian_Blur_sigma, Parasites_blue_ch, Parasites_green_ch, Parasites_red_ch, Prob_change_intensity,gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max)
-radius = 1 
-print('radius', radius)
-pil_image=Image.fromarray(noisy)
-pil_image = pil_image.filter(ImageFilter.GaussianBlur(radius = radius))
-
-pil_image.show()
-
-'''

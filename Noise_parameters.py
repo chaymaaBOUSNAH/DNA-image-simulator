@@ -28,7 +28,6 @@ Noise_parameters = {
         "Parasites_green_ch": 70,
         "Parasites_red_ch": 100,
         "Parasites_blue_ch": 40,
-        "prob_glow": 0.1,
         "Prob_change_intensity": 0.5,
         "gradient_value" : 30,
         "number_psf_max" : 5,
@@ -41,7 +40,6 @@ Noise_parameters = {
 
      "Path": {
         "csv_path": './fibers_coords',
-        "glow_dir": './glow/',
         "output_dir_path": './output_images/',
         "Images_dir": './simulated_images/',
     

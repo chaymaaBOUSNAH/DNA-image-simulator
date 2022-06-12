@@ -162,35 +162,3 @@ def degraded_fibers(image, sigma):
         
     return result_image
 
-'''
-Coller des morceau de taches flurescentes copiées des images réelles
-'''
-def Add_glow(image, glue_dir, prob):
-    row,col,ch= image.shape
-    imag = Image.fromarray(np.uint8(np.clip(image, 0, 255)))
-    Imagecopy = imag.copy() 
-    
-    dir_path = glue_dir
-    for (dirpath, dirnames, file_names) in walk(dir_path):
-        # n est le nombre aléatoire d'image de glue qui seront ajouter
-        add_glue = ['true', 'false']
-        adding_glue = random.choices(add_glue, weights=[prob, 1-prob])
-        if adding_glue==['true']:
-            n = np.random.randint(1, 3)
-            random_glue = random.sample(file_names, n)
-            for glue in random_glue:
-                
-                glue_h = np.random.randint(20, 150) 
-                glue_w = np.random.randint(20, 150) 
-                glue_path = join(dir_path, glue)
-                glue_img = Image.open(glue_path)
-                
-                #angle = random.choice([0, 90, 180])
-                #glue_img = glue_img.rotate(angle)
-                gluecopy = glue_img.copy() 
-                
-                a = np.random.randint(0, row-glue_h)
-                b = np.random.randint(0, col-glue_w)
-                
-                Imagecopy.paste(gluecopy.resize((glue_h, glue_w)), (a, b))
-    return np.array(Imagecopy) 

@@ -16,7 +16,7 @@ mpl.rc('figure', max_open_warning = 0)
 
 
 def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, min_Prob_perlage, max_Prob_perlage, min_N_pixels_perlage, 
-                     max_lenght_perlage, glue_dir, prob_glow, prob_green_dominant, min_amount_salt,max_amount_salt, min_size_noise, max_size_noise, min_val_salt, max_val_salt, min_sigma_Gaussian_noise, max_sigma_Gaussian_noise, max_gaussian_Blur_sigma, 
+                     max_lenght_perlage, prob_green_dominant, min_amount_salt,max_amount_salt, min_size_noise, max_size_noise, min_val_salt, max_val_salt, min_sigma_Gaussian_noise, max_sigma_Gaussian_noise, max_gaussian_Blur_sigma, 
                      Parasites_green_ch_max, Parasites_blue_ch_max, Parasites_red_ch_max, Prob_change_intensity, gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max, min_noisy_points, max_noisy_points, output_dir_path):
     start_time = time.time()
     if os.path.isdir(output_dir_path):
@@ -50,7 +50,7 @@ def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, m
             Parasites_blue_ch = np.random.randint(Parasites_blue_ch_max-20, Parasites_blue_ch_max)
             sigma_Gaussian_noise = np.random.randint(min_sigma_Gaussian_noise, max_sigma_Gaussian_noise)
             
-            noisy_image = Add_Electronic_noise(image_bio_noise, glue_dir, prob_glow, prob_green_dominant, amount_salt, min_size_noise, max_size_noise, min_val_salt, max_val_salt,sigma_Gaussian_noise, 
+            noisy_image = Add_Electronic_noise(image_bio_noise, prob_green_dominant, amount_salt, min_size_noise, max_size_noise, min_val_salt, max_val_salt,sigma_Gaussian_noise, 
                                      gaussian_Blur_sigma, Parasites_blue_ch, Parasites_green_ch, Parasites_red_ch, Prob_change_intensity,gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max)
             
                
@@ -115,7 +115,6 @@ max_gaussian_Blur_sigma = Add_Electrnic_noise['max_gaussian_Blur_sigma']
 Parasites_green_ch = Add_Electrnic_noise['Parasites_green_ch']
 Parasites_red_ch = Add_Electrnic_noise['Parasites_red_ch']
 Parasites_blue_ch = Add_Electrnic_noise['Parasites_blue_ch']
-prob_glow = Add_Electrnic_noise['prob_glow']
 Prob_change_intensity = Add_Electrnic_noise['Prob_change_intensity']
 gradient_value = Add_Electrnic_noise['gradient_value']
 number_psf_max = Add_Electrnic_noise['number_psf_max']
@@ -131,13 +130,11 @@ psf_max = Add_Electrnic_noise['psf_max']
 # paths
 paths = data['Path']
 csv_path = paths['csv_path'] 
-# Add glow 
-glow_dir = paths['glow_dir'] 
 #output_dir_path
 output_dir_path = paths['output_dir_path'] 
 Images_dir = paths['Images_dir']     
 
 
 Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, min_Prob_perlage, max_Prob_perlage, min_N_pixels_perlage, 
-                     max_lenght_perlage, glow_dir, prob_glow, prob_green_dominant, min_amount_salt,max_amount_salt , min_size_noise, max_size_noise, min_val_salt, max_val_salt, min_sigma_Gaussian_noise, max_sigma_Gaussian_noise, max_gaussian_Blur_sigma, 
+                     max_lenght_perlage, prob_green_dominant, min_amount_salt,max_amount_salt , min_size_noise, max_size_noise, min_val_salt, max_val_salt, min_sigma_Gaussian_noise, max_sigma_Gaussian_noise, max_gaussian_Blur_sigma, 
                      Parasites_green_ch, Parasites_blue_ch, Parasites_red_ch, Prob_change_intensity, gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max, min_noisy_points, max_noisy_points, output_dir_path)
