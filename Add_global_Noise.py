@@ -1,7 +1,7 @@
 from Biologic_Noise.Add_biological_noise import Add_biological_noise
 from Electronic_Noise.Add_Electronic_Noise import Add_Electronic_noise
 
-from utils import sorted_file
+from util import sorted_file
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageFilter, ImageEnhance
@@ -18,7 +18,7 @@ mpl.rc('figure', max_open_warning = 0)
 def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, min_Prob_perlage, max_Prob_perlage, min_N_pixels_perlage, 
                      max_lenght_perlage, prob_green_dominant, min_amount_salt,max_amount_salt, min_size_noise, max_size_noise, min_val_salt, max_val_salt, min_sigma_Gaussian_noise, max_sigma_Gaussian_noise, max_gaussian_Blur_sigma, 
                      Parasites_green_ch_max, Parasites_blue_ch_max, Parasites_red_ch_max, Prob_change_intensity, gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max, min_noisy_points, max_noisy_points, output_dir_path):
-    start_time = time.time()
+    
     if os.path.isdir(output_dir_path):
         print('directory exist !')
     else:
@@ -29,7 +29,8 @@ def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, m
         
         file_index = 0
         for image_file in sorted_file(filenames):
-            
+            start_time = time.time()
+                      
             image_path = join(Images_dir, image_file)
             image = Image.open(image_path).convert('RGB')
             image = np.array(image)
@@ -46,8 +47,8 @@ def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, m
             amount_salt = np.random.uniform(min_amount_salt, max_amount_salt)
             gaussian_Blur_sigma = np.random.uniform(0.5, max_gaussian_Blur_sigma) 
             Parasites_green_ch = np.random.randint(Parasites_green_ch_max-20, Parasites_green_ch_max)
-            Parasites_red_ch = np.random.randint(Parasites_red_ch_max-20, Parasites_red_ch_max)
-            Parasites_blue_ch = np.random.randint(Parasites_blue_ch_max-20, Parasites_blue_ch_max)
+            Parasites_red_ch = np.random.randint(Parasites_red_ch_max-40, Parasites_red_ch_max)
+            Parasites_blue_ch = np.random.randint(Parasites_blue_ch_max-40, Parasites_blue_ch_max)
             sigma_Gaussian_noise = np.random.randint(min_sigma_Gaussian_noise, max_sigma_Gaussian_noise)
             
             noisy_image = Add_Electronic_noise(image_bio_noise, prob_green_dominant, amount_salt, min_size_noise, max_size_noise, min_val_salt, max_val_salt,sigma_Gaussian_noise, 
@@ -67,12 +68,12 @@ def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, m
             pil_image = pil_image.filter(ImageFilter.GaussianBlur(radius = radius))
             
             
-            pil_image.save(output_dir_path+'image_'+str(file_index)+'.png')
+            pil_image.save(output_dir_path+'\image_'+str(file_index)+'.png')
             
-            print('image_', file_index, 'amount_salt', amount_salt, 'sigma_Gaussian_noise', sigma_Gaussian_noise, 'gaussian_Blur_sigma', gaussian_Blur_sigma, 'Parasites_green_ch', Parasites_green_ch, 'Parasites_red_ch', Parasites_red_ch, 'Parasites_blue_ch', Parasites_blue_ch, 'radius', radius)
+           
             file_index +=1
             print("--- %s seconds ---" % (time.time() - start_time))
-    print("--- %s seconds ---" % (time.time() - start_time))
+ 
         
             
                 
@@ -126,14 +127,19 @@ psf_max = Add_Electrnic_noise['psf_max']
 
 
 
-
+'''
 # paths
 paths = data['Path']
 csv_path = paths['csv_path'] 
 #output_dir_path
 output_dir_path = paths['output_dir_path'] 
 Images_dir = paths['Images_dir']     
+'''
 
+csv_path = r'C:\Users\cbousnah\Desktop\GENERATOR\fibers_coords'
+#output_dir_path
+output_dir_path = r'C:\Users\cbousnah\Desktop\GENERATOR\images'
+Images_dir = r'C:\Users\cbousnah\Desktop\GENERATOR\output_images' 
 
 Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, min_Prob_perlage, max_Prob_perlage, min_N_pixels_perlage, 
                      max_lenght_perlage, prob_green_dominant, min_amount_salt,max_amount_salt , min_size_noise, max_size_noise, min_val_salt, max_val_salt, min_sigma_Gaussian_noise, max_sigma_Gaussian_noise, max_gaussian_Blur_sigma, 

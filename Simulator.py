@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib as mpl
 import os
 import json
-from utils import distance
+from util import distance
 mpl.rc('figure', max_open_warning = 0)
 
 
@@ -32,11 +32,11 @@ def Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fib
         X2 = []
         Y1 = [] 
         Y2 = []
-        
+  
         Pente = []
         Intercept = []
         width = []
-        
+        N_analogs = []
         # générer un nombre aléatoire de fibres/image
         N = np.random.randint(min_N_fibres, max_N_fibres) 
         
@@ -94,55 +94,57 @@ def Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fib
             # dessiner les fibres
             plt.plot((x1, x2),(y1, y2), 'b', linewidth=fiber_width)
             
-           
             # Dessiner les analoguers de nucléotide sur les fibres
-            
-            # nombre aléatoire de paire d'analogue sur une fibre
-            n_pair_analog = np.random.randint(0, Max_analog)
-            
-            for k in range(n_pair_analog):
-                # coordonnées du premier analogue
-                Analog1_x1 =  np.random.uniform(x1, x2-lmax) 
-                Analog1_x2 = np.random.uniform(Analog1_x1+lmin_Analog, Analog1_x1+lmax_Analog)
+            prob_analog = random.choices(['true', 'false'], weights=(0.3, 0.7))
+            # les analogue seront dessinées seuement sur les fibre avec l>min_fibre
+            if l_fibre>min_fibre and prob_analog==['true']:
                 
-                # Calculer à partir de l'équation de droite des premiers fibres
-                Analog1_y1 =  m*Analog1_x1+b
-                Analog1_y2 = m*Analog1_x2+b
+                # nombre aléatoire de paire d'analogue sur une fibre
+                n_pair_analog = np.random.randint(0, Max_analog)
+                N_analogs.append(n_pair_analog)
                 
-                P1_Analog1 = (Analog1_x1, Analog1_y1)
-                P2_Analog1 = (Analog1_x2, Analog1_y2)
-                
-                l_Analog1 = distance((Analog1_x1, Analog1_y1), (Analog1_x2, Analog1_y2))
-                
-                # Analog2
-                Analog2_x1 = Analog1_x2
-                Analog2_x2 = np.random.uniform(Analog2_x1+lmin_Analog, x2)
-                
-                Analog2_y1 = Analog1_y2
-                Analog2_y2 = m*Analog2_x2+b
-                
-                P1_Analog2 = (Analog2_x1, Analog2_y1)
-                P2_Analog2 = (Analog2_x2, Analog2_y2)
-                
-                l_Analog2 = distance((Analog2_x1, Analog2_y1), (Analog2_x2, Analog2_y2))
-                l_analog = l_Analog1+l_Analog2
-                
-                
-                if l_fibre>min_fibre and abs(l_Analog2-l_Analog1)<dif_analg and l_fibre>l_analog:  
+                for k in range(n_pair_analog):
+                    # coordonnées du premier analogue
+                    Analog1_x1 =  np.random.uniform(x1, x2-lmax) 
+                    Analog1_x2 = np.random.uniform(Analog1_x1+lmin_Analog, Analog1_x1+lmax_Analog)
+                    
+                    # Calculer à partir de l'équation de droite des premiers fibres
+                    Analog1_y1 =  m*Analog1_x1+b
+                    Analog1_y2 = m*Analog1_x2+b       
+                    
+                    l_Analog1 = distance((Analog1_x1, Analog1_y1), (Analog1_x2, Analog1_y2))
+                    
+                    # Analog2
+                    Analog2_x1 = Analog1_x2
+                    Analog2_x2 = np.random.uniform(Analog2_x1+lmin_Analog, Analog2_x1+lmax_Analog)
+                    
+                    Analog2_y1 = Analog1_y2
+                    Analog2_y2 = m*Analog2_x2+b
+                    
+                    l_Analog2 = distance((Analog2_x1, Analog2_y1), (Analog2_x2, Analog2_y2))
+                    l_analog = l_Analog1+l_Analog2
+                    
+                    # la probabilité d'avoir les deux analogues ensemble
+                    both_analogs = random.choices(['true', 'false'], weights=(0.7, 0.3))
+                    
+                     
                     #magenta FF00FF: (255,0,255) # Aqua 00FFFF:(0,255,255)
                     colors = np.array(['#FF00FF', '#00FFFF'])
                     color1 = random.choice(colors)
                     index =  np.where(colors != color1)
                     color2 = colors[index[0][0]]
-        
+                    
+                    diff_analog_width = np.random.uniform(0.5, 1)
                     
                     # dessiner clu sur l'image 
-                    plt.plot((Analog1_x1, Analog1_x2),(Analog1_y1,Analog1_y2), color = color1, linewidth=fiber_width)
-                
-                    # dessiner cldu sur l'image
-                    plt.plot((Analog2_x1, Analog2_x2),(Analog2_y1, Analog2_y2), color = color2, linewidth=fiber_width)
+                    plt.plot((Analog1_x1, Analog1_x2),(Analog1_y1,Analog1_y2), color = color1, linewidth=fiber_width-diff_analog_width)
                     
-            
+                    if both_analogs== ['true']:
+                        # dessiner cldu sur l'image
+                        plt.plot((Analog2_x1, Analog2_x2),(Analog2_y1, Analog2_y2), color = color2, linewidth=fiber_width-diff_analog_width)
+                    
+            else:
+                N_analogs.append(0)
     
         ax.set_xlim((0, Image.shape[1]))
         ax.set_ylim((Image.shape[0], 0))
@@ -153,9 +155,9 @@ def Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fib
         # enregister les coordonées des fibres de chaque image dans un fichier csv
         
         #fibre_data = np.hstack((X1, Y1, X2, Y2, Pente, width))
-        fibre = pd.DataFrame([X1, Y1, X2, Y2, Pente, Intercept, width],  dtype='f')
+        fibre = pd.DataFrame([X1, Y1, X2, Y2, Pente, Intercept, width, N_analogs],  dtype='f')
         fibre = fibre.transpose() 
-        fibre.to_csv(csv_dir_path+'/image_'+str(i)+'_mask', header=['X1', 'Y1', 'X2', 'Y2', 'slop', 'b', 'width'], index=False)
+        fibre.to_csv(csv_dir_path+'/image_'+str(i)+'_mask', header=['X1', 'Y1', 'X2', 'Y2', 'slop', 'b', 'width', 'N_analogs'], index=False)
         
         
         
@@ -204,8 +206,8 @@ dif_analg = Analog_characteristics['diff_l_analg']
 # la longueur min d'une fibre qui peut avoir des analogues min_fibre
 min_fibre = Analog_characteristics['l_min_fibre_with_analog'] 
 
-image_dir_path = './simulated_images'
-csv_dir_path = './fibers_coords'
+image_dir_path = r'C:\Users\cbousnah\Desktop\GENERATOR\simulated_images'
+csv_dir_path = r'C:\Users\cbousnah\Desktop\GENERATOR\fibers_coords'
 
 Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fibres, delta, l_min, lmin_Analog,
                     lmax_Analog, lmax, Max_analog, dif_analg, min_fibre, image_dir_path, csv_dir_path)

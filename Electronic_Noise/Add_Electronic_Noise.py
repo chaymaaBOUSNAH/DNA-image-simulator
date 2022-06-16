@@ -46,7 +46,7 @@ def Add_Electronic_noise(image, prob_green_dominant, amount_SP, min_size_noise, 
 
     # paramètres pour générer une intensité de distribution gaussiene dans une zone définit 
     Adding_PSF = random.choices(['true', 'false'], weights=[Prob_Add_PSF, 1-Prob_Add_PSF])
-    number_psf = np.random.randint(1, number_psf_max)
+    number_psf = np.random.randint(2, number_psf_max)
 
     for i, (channel, Parasites_ch, noise_value) in enumerate(zip(channel_list, Parasites_ch, noise_values)):
         image[:, :, i] = Add_channel_noise(channel, i, dominant_channel, amount_SP, noise_value, size_noise, sigma_Gaussian_noise, gaussian_Blur_sigma, Parasites_ch)
@@ -68,13 +68,14 @@ def Add_Electronic_noise(image, prob_green_dominant, amount_SP, min_size_noise, 
             # l'indice du channal qui aura la couleur lumineuse dominante
             channel_psf = random.choices([0, 1, 2], weights=[0.35, 0.6, 0.05])
             image = Add_PSF_to_image(image, channel_psf, mx, my, ax, sx, ay, sy)
-            add_near_psf = random.choices(['true', 'false'], weights=[0.7, 0.3])
+            add_near_psf = random.choices(['true', 'false'], weights=[0.4, 0.6])
             
             # ajouter d'autres tache flurescente à cote pour faire des formes différentes
             if add_near_psf ==['true']:
-                for near_psf in range(3):
-                    n = np.random.randint(5, 20)
-                    m = np.random.randint(5, 20)
+                N = np.random.randint(1, 5)
+                for near_psf in range(N):
+                    n = np.random.randint(10, 30)
+                    m = np.random.randint(10, 30)
                     l = np.random.uniform(0.2, 2)
                     image = Add_PSF_to_image(image, channel_psf, mx+n, my+m, ax*l, sx, ay*l, sy)
             

@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import time
 from PIL import Image
-from .utils import canvas2rgb_array, distance
+from .utils_bio import canvas2rgb_array, distance
 from .Draw_curves import *
 from .Extract_curves_coords import extract_curves_coords
 
@@ -44,6 +44,54 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
     
     ax.imshow(image, cmap=plt.cm.gray, aspect='auto')
     
+    
+    
+    for fiber in range(len(Fiber_data)):
+        
+        X1, X2 = Fiber_data['X1'][fiber], Fiber_data['X2'][fiber]
+        Y1, Y2 = Fiber_data['Y1'][fiber], Fiber_data['Y2'][fiber]
+        Width = Fiber_data['width'][fiber]
+        Pente = Fiber_data['slop'][fiber]
+        intercept = Fiber_data['b'][fiber]
+        l_fibre = distance((X1, Y1), (X2, Y2))
+        number_analogs = Fiber_data['N_analogs'][fiber]
+        
+        Prob_perlage = np.random.uniform(min_Prob_perlage, max_Prob_perlage)
+        Perlage = random.choices(['true', 'false'], weights=[Prob_perlage, 1-Prob_perlage])
+
+        if Perlage == ['true']:
+     
+            # nombre de discontinuité dans une fibre -> proportionnel à la longeur de la fibre 
+            # supposant pour 100 pixels --> 1 perlage
+            num_perlage = int(l_fibre/min_N_pixels_perlage)
+            
+            for disc in range(num_perlage):
+                
+                # redessiner certaine morceaux de fibre sur les fibres pour que certaine zone deviennent plus épaissent et pour faire du discontinuité seulement sur les analogues 
+                
+                if number_analogs !=0:
+                    l = np.random.randint(5, 20)
+                    x__b = np.random.uniform(X1, X2-l)
+                    x__2b = x__b+l
+
+                    y__b = Pente*x__b + intercept
+                    y__2b  = Pente*x__b + intercept
+                    plt.plot((x__b, x__2b),(y__b, y__2b), color= 'b', linewidth=Width+0.5)
+                          
+                lenth = np.random.randint(1, max_lenght_perlage)
+                
+                x__1 = np.random.uniform(X1, X2)
+                #x__2 = np.random.uniform(x__1, x__1+lenth)
+                x__2 = math.sqrt(lenth**2/(1+Pente**2))+x__1
+       
+                y__1 = Pente*x__1 + intercept
+                y__2  = Pente*x__2 + intercept
+   
+                plt.plot((x__1, x__2),(y__1, y__2), color= 'black', linewidth=Width+0.5)
+          
+                
+                
+    
     Add_U_curve = ['true', 'false']
     Adding_curve = random.choices(Add_U_curve, weights=[0.7, 0.3])
     if np.size(l1_u) !=0 and Adding_curve==['true']:
@@ -52,7 +100,7 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
             p1, p2 = l1_u[k], l2_u[k]
       
             x_cercle, y_cercle = draw_cercle(p1, p2)
-            plt.plot(y_cercle, x_cercle,  color = 'b', linewidth=5)
+            plt.plot(y_cercle, x_cercle,  color = 'b', linewidth=Width)
     
     Add_Bezier_curve = ['true', 'false']
     Adding_Bezier_curve = random.choices(Add_Bezier_curve, weights=[0.7, 0.3])
@@ -66,7 +114,7 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
             plt.plot(
             	curve1[:, 0],   # x-coordinates.
             	curve1[:, 1],    # y-coordinates.
-                color = 'b', linewidth=5)
+                color = 'b', linewidth=Width)
             
     if np.size(courbe_21) !=0 and Adding_Bezier_curve==['true']:
         for k in range(len(courbe_21)):
@@ -78,7 +126,7 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
             plt.plot(
             	curve2[:, 0],   # x-coordinates.
             	curve2[:, 1],    # y-coordinates.
-                color = 'b', linewidth=5)
+                color = 'b', linewidth=Width)
             
             
     '''Add noisy fibers , fluerrescent noise, peper noise'''    
@@ -106,35 +154,7 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
         linewidth = np.random.randint(2, 8)
         plt.plot((x1, x2),(y1, y2), color= noise_color[0], linewidth=linewidth)
         
-    for fiber in range(len(Fiber_data)):
-        
-        X1, X2 = Fiber_data['X1'][fiber], Fiber_data['X2'][fiber]
-        Y1, Y2 = Fiber_data['Y1'][fiber], Fiber_data['Y2'][fiber]
-        Width = Fiber_data['width'][fiber]
-        Pente = Fiber_data['slop'][fiber]
-        intercept = Fiber_data['b'][fiber]
-        l_fibre = distance((X1, Y1), (X2, Y2))
-        
-        Prob_perlage = np.random.uniform(min_Prob_perlage, max_Prob_perlage)
-        Perlage = random.choices(['true', 'false'], weights=[Prob_perlage, 1-Prob_perlage])
-        
-        if Perlage == ['true']:
-           
-            # nombre de discontinuité dans une fibre -> proportionnel à la longeur de la fibre 
-            # supposant pour 100 pixels --> 1 perlage
-            num_perlage = int(l_fibre/min_N_pixels_perlage)
-            
-            for disc in range(num_perlage):
-                lenth = np.random.randint(1, max_lenght_perlage)
-                
-                x__1 = np.random.uniform(X1, X2)
-                #x__2 = np.random.uniform(x__1, x__1+lenth)
-                x__2 = math.sqrt(lenth**2/(1+Pente**2))+x__1
-       
-                y__1 = Pente*x__1 + intercept
-                y__2  = Pente*x__2 + intercept
-            
-                plt.plot((x__1, x__2),(y__1, y__2), color= 'black', linewidth=Width+0.5)            
+
         
     #colors = ['#32CD32', '#FF34B3']
     #color = np.random.choice(colors, 1, p = [0.6, 0.4])
@@ -146,15 +166,16 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
         #color = np.random.choice(colors, 1, p = [0.6, 0.4])
         markers = ['s', 'o']
         markr = np.random.choice(markers, 1, p=[0.6, 0.4])
-        plt.scatter(x, y, s=size, c='#00FF00', marker=markr[0])    
+        plt.scatter(x, y, s=size, c='#00FF00', marker=markr[0])
+    
     for j in range(pepper):
         x = np.random.uniform(0, raw)
         y = np.random.uniform(0, col)
-        size = np.random.uniform(6, 20)
+        size = np.random.uniform(1, 7)
         markers = ['s', 'o']
         markr = np.random.choice(markers, 1, p=[0.6, 0.4])
-        
-        plt.scatter(x, y, s=size, c='#0000FF', marker=markr[0])   
+        plt.scatter(x, y, s=size, c='#0000FF', marker=markr[0])
+ 
     """    
     for noisy_dust in range(pepper):   
         # autre bruit : poussière
@@ -174,7 +195,22 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
             else:
                 plt.scatter(x,y, marker='o',color = color, s = s*n , alpha = alpha_value/(n*1.5))  
       """          
-                
+    
+    # plot randomly a line
+    proba_noisy_line = random.choices(['true', 'false'], weights=(0.8, 0.2))
+    if proba_noisy_line == ['true']:
+        l_x = np.random.randint(10, 100)
+        x1_line = np.random.uniform(0, raw-l_x)
+        x2_line = x1_line + l_x
+        
+        l_y = random.randint(1000, 2000)
+        y1_line = np.random.uniform(0, col-l_y)
+        y2_line  = y1_line+ l_y
+        
+        W = random.randint(10, 30)
+        plt.plot((x1_line, x2_line), (y1_line, y2_line), color= '#FF34B3', linewidth=W, alpha =0.8)
+    
+    
     ax.set_xlim((0, image.shape[1]))
     ax.set_ylim((image.shape[0], 0))
     

@@ -144,12 +144,9 @@ def degraded_fibers(image, sigma):
     output = image.copy()
 
     row,col,ch= output.shape
-    
-    output_gaussian = Gaussian_noise_RGB(output, sigma)
-    output_gaussian  = np.uint8(np.clip(output_gaussian, 0, 255))
-    red_channel = output_gaussian[:, :, 0]
-    green_channel = output_gaussian[:, :, 1]
-    blue_channel = output_gaussian[:, :, 2]
+    red_channel = np.uint8(np.clip(Gaussian_noise(output[:, :, 0], sigma), 0, 255))
+    green_channel = np.uint8(np.clip(Gaussian_noise(output[:, :, 1], sigma), 0, 255))
+    blue_channel = np.uint8(np.clip(Gaussian_noise(output[:, :, 2], sigma), 0, 255))
   
     black = np.array([0], dtype='uint8')
     
