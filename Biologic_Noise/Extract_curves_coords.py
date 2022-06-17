@@ -8,9 +8,9 @@ def extract_curves_coords(Fibers_coords):
     distU_X= 10
     distU_Y= 300
     
-    distx_min  = 30
-    disty_min = 10
-    distx_max = 100
+    distx_min  = 50
+    disty_min = 50
+    distx_max = 300
     disty_max = 100
     
     

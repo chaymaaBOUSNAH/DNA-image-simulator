@@ -68,7 +68,7 @@ def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, m
             pil_image = pil_image.filter(ImageFilter.GaussianBlur(radius = radius))
             
             
-            pil_image.save(output_dir_path+'\image_'+str(file_index)+'.png')
+            pil_image.save(output_dir_path+'\image_'+str(file_index+376)+'.png')
             
            
             file_index +=1

@@ -59,25 +59,27 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
         Prob_perlage = np.random.uniform(min_Prob_perlage, max_Prob_perlage)
         Perlage = random.choices(['true', 'false'], weights=[Prob_perlage, 1-Prob_perlage])
 
-        if Perlage == ['true']:
+        
      
-            # nombre de discontinuité dans une fibre -> proportionnel à la longeur de la fibre 
-            # supposant pour 100 pixels --> 1 perlage
-            num_perlage = int(l_fibre/min_N_pixels_perlage)
+        # nombre de discontinuité dans une fibre -> proportionnel à la longeur de la fibre 
+        # supposant pour 100 pixels --> 1 perlage
+        num_perlage = int(l_fibre/min_N_pixels_perlage)
+        
+        for disc in range(num_perlage):
             
-            for disc in range(num_perlage):
-                
-                # redessiner certaine morceaux de fibre sur les fibres pour que certaine zone deviennent plus épaissent et pour faire du discontinuité seulement sur les analogues 
-                
-                if number_analogs !=0:
-                    l = np.random.randint(5, 20)
-                    x__b = np.random.uniform(X1, X2-l)
-                    x__2b = x__b+l
+            # redessiner certaine morceaux de fibre bleues sur les fibres originales pour que certaine zone deviennent plus épaissent et pour faire du discontinuité seulement sur les analogues 
+            
+            if number_analogs !=0:
+                l = np.random.randint(5, 20)
+                x__b = np.random.uniform(X1, X2-l)
+                x__2b = x__b+l
 
-                    y__b = Pente*x__b + intercept
-                    y__2b  = Pente*x__b + intercept
-                    plt.plot((x__b, x__2b),(y__b, y__2b), color= 'b', linewidth=Width+0.5)
-                          
+                y__b = Pente*x__b + intercept
+                y__2b  = Pente*x__b + intercept
+                plt.plot((x__b, x__2b),(y__b, y__2b), color= 'b', linewidth=Width+0.5)
+            
+                
+            if Perlage == ['true']:
                 lenth = np.random.randint(1, max_lenght_perlage)
                 
                 x__1 = np.random.uniform(X1, X2)
@@ -86,14 +88,12 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
        
                 y__1 = Pente*x__1 + intercept
                 y__2  = Pente*x__2 + intercept
-   
+       
                 plt.plot((x__1, x__2),(y__1, y__2), color= 'black', linewidth=Width+0.5)
-          
-                
-                
+           
     
     Add_U_curve = ['true', 'false']
-    Adding_curve = random.choices(Add_U_curve, weights=[0.7, 0.3])
+    Adding_curve = random.choices(Add_U_curve, weights=[0.6, 0.4])
     if np.size(l1_u) !=0 and Adding_curve==['true']:
         for k in range(len(l1_u)):
             
@@ -197,7 +197,7 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
       """          
     
     # plot randomly a line
-    proba_noisy_line = random.choices(['true', 'false'], weights=(0.8, 0.2))
+    proba_noisy_line = random.choices(['true', 'false'], weights=(0.1, 0.9))
     if proba_noisy_line == ['true']:
         l_x = np.random.randint(10, 100)
         x1_line = np.random.uniform(0, raw-l_x)
@@ -207,8 +207,11 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
         y1_line = np.random.uniform(0, col-l_y)
         y2_line  = y1_line+ l_y
         
-        W = random.randint(10, 30)
-        plt.plot((x1_line, x2_line), (y1_line, y2_line), color= '#FF34B3', linewidth=W, alpha =0.8)
+        colors = ['#800080', '#FF34B3', '#D02090', '#C71585']
+        color = random.choices(colors, weights=[0.3, 0.3, 0.2, 0.2])
+        
+        W = random.randint(20, 50)
+        plt.plot((x1_line, x2_line), (y1_line, y2_line), color= color[0], linewidth=W)
     
     
     ax.set_xlim((0, image.shape[1]))

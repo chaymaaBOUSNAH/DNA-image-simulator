@@ -30,16 +30,36 @@ def draw_bezier_curve(point1, point2, C):
     #Définir deux points pour la courbe de bézier 
     # sens 1
     if C == 'C1':
-        i_1_x, i_1_y = x_1-L/3, y_1
-        i_2_x, i_2_y = x_2+L/3, y_2
+        i_1_x, i_1_y = x_1-L/3, y_1-l/3
+        i_2_x, i_2_y = x_2+L/3, y_2+l/3
+        i_3_x, i_3_y = x_2+L/2, y_2+l/2
     # sens 2
     if C == 'C2':
-        i_1_x, i_1_y = x_2+L/3, y_1
-        i_2_x, i_2_y = x_1-L/3, y_2
+        i_1_x, i_1_y = x_2+L/3, y_1-l/3
+        i_2_x, i_2_y = x_1-L/3, y_2+l/3
+        i_3_x, i_3_y = x_1-L/2, y_2+l/2
     
-    points = np.array([[x_1, y_1], [i_1_x , i_1_y], [i_2_x, i_2_y], [x_2, y_2]])
+    points = np.array([[x_1, y_1], [x_2, y_2]])
     t_points = np.arange(0, 1, 0.01)
 
     curve = Bezier.Curve(t_points, points)
     
     return curve
+
+
+def hanging_line(point1, point2):
+    import numpy as np
+    import sympy as sy
+
+    a = (point2[0]-point1[0])/(sy.cosh(point2[1])-sy.cosh(point1[1]))
+    b = point1[0]-a*sy.cosh(point1[1])
+    x = np.linspace(point1[1], point2[1], 20000)
+    #y = a*sy.cosh(x)+b
+    
+    
+    y = []
+    for i in x:
+        y.append(a*sy.cosh(i)+b)
+
+
+    return (x,y)
