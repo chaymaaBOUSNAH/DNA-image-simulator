@@ -58,12 +58,12 @@ def Add_Electronic_noise(image, prob_green_dominant, amount_SP, min_size_noise, 
         for psf in range(number_psf):
             # a: la hauteur du picle, m: la position du centre du pic, s: sigma, indice 1 et 2 --> selon x et y
             
-            ax = np.random.randint(psf_min, psf_max)
-            ay = np.random.randint(psf_min, psf_max)
-            mx = np.random.randint(0, row)
-            my = np.random.randint(0, col)
-            sx = np.random.randint(psf_min, psf_max)
-            sy = np.random.randint(psf_min, psf_max)
+            ax = np.random.uniform(psf_min, psf_max)
+            ay = np.random.uniform(psf_min, psf_max)
+            mx = np.random.uniform(0, row)
+            my = np.random.uniform(0, col)
+            sx = np.random.uniform(psf_min, psf_max)
+            sy = np.random.uniform(psf_min, psf_max)
             
             # l'indice du channal qui aura la couleur lumineuse dominante
             channel_psf = random.choices([0, 1, 2], weights=[0.35, 0.6, 0.05])
@@ -74,8 +74,8 @@ def Add_Electronic_noise(image, prob_green_dominant, amount_SP, min_size_noise, 
             if add_near_psf ==['true']:
                 N = np.random.randint(1, 5)
                 for near_psf in range(N):
-                    n = np.random.randint(10, 30)
-                    m = np.random.randint(10, 30)
+                    n = np.random.uniform(5, 20)
+                    m = np.random.uniform(5, 20)
                     l = np.random.uniform(0.2, 2)
                     image = Add_PSF_to_image(image, channel_psf, mx+n, my+m, ax*l, sx, ay*l, sy)
             
@@ -86,9 +86,9 @@ def Add_Electronic_noise(image, prob_green_dominant, amount_SP, min_size_noise, 
     '''
     if Adding_gradients == ['true']:
 
-        r = random.randint(-gradient_value, gradient_value)
-        g = random.randint(-gradient_value, gradient_value)
-        b = random.randint(-gradient_value, gradient_value)
+        r = random.uniform(-gradient_value, gradient_value)
+        g = random.uniform(-gradient_value, gradient_value)
+        b = random.uniform(-gradient_value, gradient_value)
         array_rgb = get_gradient_3d(row,col, (r, g, b), (0, 0, 0))
         image = image - array_rgb
     

@@ -46,11 +46,11 @@ def extract_curves_coords(Fibers_coords):
             
             
             # enregister les lignes sur les quel on va ajouter un autre type de bruit
-            distx_C1 = abs(X1[j]-X1[j-1])
-            disty_C1 = abs(Y1[j]-Y1[j-1])
+            distx_C1 = abs(X2[j]-X1[j-1])
+            disty_C1 = abs(Y2[j]-Y1[j-1])
             if X2[j]<X1[j-1] and distx_C1 <distx_max and distx_C1>distx_min and disty_C1<disty_max:           
                 courbe_11.append([X1[j-1], Y1[j-1]])
-                courbe_12.append([X1[j], Y1[j]])
+                courbe_12.append([X2[j], Y2[j]])
             
             distx_C2 = abs(X2[j-1]-X1[j])
             disty_C2 = abs(Y2[j-1]-Y1[j])

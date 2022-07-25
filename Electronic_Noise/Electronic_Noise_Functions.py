@@ -120,7 +120,7 @@ def Add_PSF_to_channel(channel, m1, m2, a1, s1, a2, s2):
     return channel    
 
 def Add_PSF_to_image(image, channel_psf, m1, m2, a1, s1, a2, s2):
-    n = np.random.randint(2, 4)
+    n = np.random.randint(2, 5)
     for i in range(image.shape[2]):
         # augmenté l'intensité pour le channal dominanat
         if i == channel_psf[0]:

@@ -23,9 +23,8 @@ def Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fib
     for i in range(N_images):
         fiber_width = np.random.randint(4, 6)
         
-        m = np.random.uniform(0, delta)
-        pente = ['normal', 'decale']
-        choix_pente = random.choices(pente, weights=[0.7, 0.3])
+        m = np.random.uniform(-delta, delta)
+   
         
         # P1 et P2 sont des listes contenants les coordonnées x et y des 2 points de deux fibre
         X1 = [] 
@@ -57,6 +56,9 @@ def Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fib
         ax.imshow(Image, cmap=plt.cm.gray, aspect='auto')
         
         for j in range(N):
+            pente = ['normal', 'decale']
+            choix_pente = random.choices(pente, weights=[0.8, 0.2])
+            
             diff_width = np.random.uniform(0, 0.1)
             fiber_width  = fiber_width + diff_width
             
@@ -65,7 +67,7 @@ def Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fib
                 m = m+0.001
              
             # coordonnées x des fibres d'ADN
-            x1 = np.random.uniform(0, image_width) 
+            x1 = np.random.uniform(0, image_width-l_min) 
             #lmin pour ne pas avoir des fibre trop petites(qui ressemblent au bruit) 
             x2 = np.random.uniform(x1+l_min, image_width) 
             # coordonnées y des fibres d'ADN
@@ -150,14 +152,14 @@ def Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fib
         ax.set_ylim((Image.shape[0], 0))
         
         
-        plt.savefig(image_dir_path+'/image_'+str(i+376)+'_mask', bbox_inches='tight', pad_inches=0, dpi=dpi)
+        plt.savefig(image_dir_path+'/image_'+str(i+4498)+'_mask', bbox_inches='tight', pad_inches=0, dpi=dpi)
         
         # enregister les coordonées des fibres de chaque image dans un fichier csv
         
         #fibre_data = np.hstack((X1, Y1, X2, Y2, Pente, width))
         fibre = pd.DataFrame([X1, Y1, X2, Y2, Pente, Intercept, width, N_analogs],  dtype='f')
         fibre = fibre.transpose() 
-        fibre.to_csv(csv_dir_path+'/image_'+str(i+376)+'_mask', header=['X1', 'Y1', 'X2', 'Y2', 'slop', 'b', 'width', 'N_analogs'], index=False)
+        fibre.to_csv(csv_dir_path+'/image_'+str(i+4498)+'_mask', header=['X1', 'Y1', 'X2', 'Y2', 'slop', 'b', 'width', 'N_analogs'], index=False)
         
         
         
@@ -206,8 +208,8 @@ dif_analg = Analog_characteristics['diff_l_analg']
 # la longueur min d'une fibre qui peut avoir des analogues min_fibre
 min_fibre = Analog_characteristics['l_min_fibre_with_analog'] 
 
-image_dir_path = r'C:\Users\cbousnah\Desktop\GENERATOR\output_images'
-csv_dir_path = r'C:\Users\cbousnah\Desktop\GENERATOR\fibers_coords'
+image_dir_path = './output_images'
+csv_dir_path = './fibers_coords'
 
 Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fibres, delta, l_min, lmin_Analog,
                     lmax_Analog, lmax, Max_analog, dif_analg, min_fibre, image_dir_path, csv_dir_path)

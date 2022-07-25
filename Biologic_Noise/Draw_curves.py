@@ -30,16 +30,16 @@ def draw_bezier_curve(point1, point2, C):
     #Définir deux points pour la courbe de bézier 
     # sens 1
     if C == 'C1':
-        i_1_x, i_1_y = x_1-L/3, y_1-l/3
-        i_2_x, i_2_y = x_2+L/3, y_2+l/3
-        i_3_x, i_3_y = x_2+L/2, y_2+l/2
+        i_1_x, i_1_y = x_1-L/2, y_1
+ 
+        i_2_x, i_2_y = x_2+L/2, y_2
+        
     # sens 2
     if C == 'C2':
-        i_1_x, i_1_y = x_2+L/3, y_1-l/3
-        i_2_x, i_2_y = x_1-L/3, y_2+l/3
-        i_3_x, i_3_y = x_1-L/2, y_2+l/2
+        i_1_x, i_1_y = x_1+L/2, y_1
+        i_2_x, i_2_y = x_2-L/2, y_2
     
-    points = np.array([[x_1, y_1], [x_2, y_2]])
+    points = np.array([[x_1, y_1], [i_1_x , i_1_y], [i_2_x, i_2_y], [x_2, y_2]])
     t_points = np.arange(0, 1, 0.01)
 
     curve = Bezier.Curve(t_points, points)

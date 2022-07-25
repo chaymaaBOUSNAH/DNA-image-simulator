@@ -70,7 +70,7 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
             # redessiner certaine morceaux de fibre bleues sur les fibres originales pour que certaine zone deviennent plus épaissent et pour faire du discontinuité seulement sur les analogues 
             
             if number_analogs !=0:
-                l = np.random.randint(5, 20)
+                l = np.random.uniform(5, 20)
                 x__b = np.random.uniform(X1, X2-l)
                 x__2b = x__b+l
 
@@ -80,7 +80,7 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
             
                 
             if Perlage == ['true']:
-                lenth = np.random.randint(1, max_lenght_perlage)
+                lenth = np.random.uniform(0.1, max_lenght_perlage)
                 
                 x__1 = np.random.uniform(X1, X2)
                 #x__2 = np.random.uniform(x__1, x__1+lenth)
@@ -150,7 +150,7 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
         
         # morceaux des fibres des analogues comme bruit
         noise_colors = ['b', 'aqua', 'magenta']
-        noise_color = np.random.choice(noise_colors, 1, p = [0.8, 0.1, 0.1])
+        noise_color = np.random.choice(noise_colors, 1, p = [0.7, 0.15, 0.15])
         linewidth = np.random.randint(2, 8)
         plt.plot((x1, x2),(y1, y2), color= noise_color[0], linewidth=linewidth)
         
@@ -167,14 +167,8 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
         markers = ['s', 'o']
         markr = np.random.choice(markers, 1, p=[0.6, 0.4])
         plt.scatter(x, y, s=size, c='#00FF00', marker=markr[0])
-    
-    for j in range(pepper):
-        x = np.random.uniform(0, raw)
-        y = np.random.uniform(0, col)
-        size = np.random.uniform(1, 7)
-        markers = ['s', 'o']
-        markr = np.random.choice(markers, 1, p=[0.6, 0.4])
         plt.scatter(x, y, s=size, c='#0000FF', marker=markr[0])
+    
  
     """    
     for noisy_dust in range(pepper):   
@@ -197,13 +191,13 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
       """          
     
     # plot randomly a line
-    proba_noisy_line = random.choices(['true', 'false'], weights=(0.1, 0.9))
+    proba_noisy_line = random.choices(['true', 'false'], weights=(0.01, 0.9))
     if proba_noisy_line == ['true']:
-        l_x = np.random.randint(10, 100)
+        l_x = np.random.randint(10, raw)
         x1_line = np.random.uniform(0, raw-l_x)
         x2_line = x1_line + l_x
         
-        l_y = random.randint(1000, 2000)
+        l_y = random.randint(1000, col)
         y1_line = np.random.uniform(0, col-l_y)
         y2_line  = y1_line+ l_y
         
@@ -211,7 +205,7 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
         color = random.choices(colors, weights=[0.3, 0.3, 0.2, 0.2])
         
         W = random.randint(20, 50)
-        plt.plot((x1_line, x2_line), (y1_line, y2_line), color= color[0], linewidth=W)
+        plt.plot((x1_line, x2_line), (y1_line, y2_line), color= color[0], linewidth=W, alpha = 0.9)
     
     
     ax.set_xlim((0, image.shape[1]))
