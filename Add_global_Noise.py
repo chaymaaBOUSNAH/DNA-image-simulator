@@ -1,7 +1,7 @@
 from Biologic_Noise.Add_biological_noise import Add_biological_noise
 from Electronic_Noise.Add_Electronic_Noise import Add_Electronic_noise
 
-from util import sorted_file
+from util import *
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageFilter, ImageEnhance
@@ -18,12 +18,9 @@ mpl.rc('figure', max_open_warning = 0)
 def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, min_Prob_perlage, max_Prob_perlage, min_N_pixels_perlage, 
                      max_lenght_perlage, prob_green_dominant, min_amount_salt,max_amount_salt, min_size_noise, max_size_noise, min_val_salt, max_val_salt, min_sigma_Gaussian_noise, max_sigma_Gaussian_noise, max_gaussian_Blur_sigma, 
                      Parasites_green_ch_max, Parasites_blue_ch_max, Parasites_red_ch_max, Prob_change_intensity, gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max, min_noisy_points, max_noisy_points, output_dir_path):
-    
-    if os.path.isdir(output_dir_path):
-        print('directory exist !')
-    else:
-        os.makedirs(output_dir_path)
-        print('directory created !')
+
+
+    Noisy_Images_dir = create_noisy_images_directory(output_dir_path)
         
     for (dirpath, dirnames, filenames) in walk(Images_dir):
         
@@ -33,8 +30,7 @@ def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, m
             start_time = time.time()
                       
             image_path = join(Images_dir, image_file)
-            image = Image.open(image_path).convert('RGB')
-            image = np.array(image)
+            image = Read_Image_to_numpy_arr(image_path)
             
             assert np.amax(image)==255 and np.amin(image)==0, f'{image_file} values are not in the range [0 255], normalise image values'
             
@@ -69,7 +65,7 @@ def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, m
             pil_image = pil_image.filter(ImageFilter.GaussianBlur(radius = radius))
             
             
-            pil_image.save(output_dir_path+'\image_'+str(file_index)+'.png')
+            pil_image.save(Noisy_Images_dir+'\image_'+str(file_index)+'.png')
             
            
             file_index +=1
@@ -143,6 +139,9 @@ csv_path = './fibers_coords'
 output_dir_path = './images'
 Images_dir = './output_images' 
 
-Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, min_Prob_perlage, max_Prob_perlage, min_N_pixels_perlage, 
+
+
+if __name__==__main__():
+    Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, min_Prob_perlage, max_Prob_perlage, min_N_pixels_perlage,
                      max_lenght_perlage, prob_green_dominant, min_amount_salt,max_amount_salt , min_size_noise, max_size_noise, min_val_salt, max_val_salt, min_sigma_Gaussian_noise, max_sigma_Gaussian_noise, max_gaussian_Blur_sigma, 
                      Parasites_green_ch, Parasites_blue_ch, Parasites_red_ch, Prob_change_intensity, gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max, min_noisy_points, max_noisy_points, output_dir_path)

@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import time
 from PIL import Image
-from .utils_bio import canvas2rgb_array, distance
+from .utils_bio import *
 from .Draw_curves import *
 from .Extract_curves_coords import extract_curves_coords
 
@@ -16,18 +16,14 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
     start_time = time.time()
     assert np.amax(image)==255 and np.amin(image)==0,  'values are not in the range [0 255], normalise image values'
     raw, col, ch = image.shape
+
+    csv_path = corresponding_csv_img(csv_path, image_file)
+    file_fibers = os.path.basename(csv_path)
     
-    image_name = image_file.split('.')
-    name = image_name[0]
-    
-    
-    # File loading
-    
+    assert len(file_fibers) == 1, f'Either no file or multiple files found for the file {file_fibers}'
+
     # coord des fibres
-    File_Fibers = list(Path(csv_path).glob(name))[0]
-    Fiber_data = pd.read_csv(File_Fibers)
-    
-    #assert len(File_Fibers) == 1 , f'Either no file or multiple files found for the one of the files fibers coordonates{File_Fibers}'
+    Fiber_data = pd.read_csv(csv_path)
     
     # extract curves coordonates:
     l1_u, l2_u, courbe_11, courbe_12, courbe_21,courbe_22 = extract_curves_coords(Fiber_data)
