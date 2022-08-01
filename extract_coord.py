@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import math
 
-
+from scipy.spatial import distance
 
 def get_lines(lines_in):
     if cv2.__version__ < '3.0':
@@ -13,7 +13,7 @@ def get_lines(lines_in):
 def merge_lines_pipeline_2(lines):
     super_lines_final = []
     super_lines = []
-    min_distance_to_merge = 2
+    min_distance_to_merge = 20
     min_angle_to_merge = 5
 
     for line in lines:
@@ -24,10 +24,10 @@ def merge_lines_pipeline_2(lines):
             for line2 in group:
                 if get_distance(line2, line) < min_distance_to_merge:
                     # check the angle between lines       
-                    orientation_i = math.atan2((line[0][1]-line[1][1]),(line[0][0]-line[1][0]))
-                    orientation_j = math.atan2((line2[0][1]-line2[1][1]),(line2[0][0]-line2[1][0]))
+                    orientation_i = np.arctan2((line[0][1]-line[1][1]),(line[0][0]-line[1][0]))
+                    orientation_j = np.arctan2((line2[0][1]-line2[1][1]),(line2[0][0]-line2[1][0]))
 
-                    if int(abs(abs(math.degrees(orientation_i)) - abs(math.degrees(orientation_j)))) < min_angle_to_merge: 
+                    if int(abs(abs(np.degrees(orientation_i)) - abs(np.degrees(orientation_j)))) < min_angle_to_merge: 
                         #print("angles", orientation_i, orientation_j)
                         #print(int(abs(orientation_i - orientation_j)))
                         group.append(line)
@@ -47,10 +47,10 @@ def merge_lines_pipeline_2(lines):
                 # check the distance between lines
                 if get_distance(line2, line) < min_distance_to_merge:
                     # check the angle between lines       
-                    orientation_i = math.atan2((line[0][1]-line[1][1]),(line[0][0]-line[1][0]))
-                    orientation_j = math.atan2((line2[0][1]-line2[1][1]),(line2[0][0]-line2[1][0]))
+                    orientation_i = np.arctan2((line[0][1]-line[1][1]),(line[0][0]-line[1][0]))
+                    orientation_j = np.arctan2((line2[0][1]-line2[1][1]),(line2[0][0]-line2[1][0]))
 
-                    if int(abs(abs(math.degrees(orientation_i)) - abs(math.degrees(orientation_j)))) < min_angle_to_merge: 
+                    if int(abs(abs(np.degrees(orientation_i)) - abs(np.degrees(orientation_j)))) < min_angle_to_merge: 
                         #print("angles", orientation_i, orientation_j)
                         #print(int(abs(orientation_i - orientation_j)))
 
@@ -74,14 +74,14 @@ def merge_lines_segments1(lines, use_log=False):
     line_i = lines[0]
 
     # orientation
-    orientation_i = math.atan2((line_i[0][1]-line_i[1][1]),(line_i[0][0]-line_i[1][0]))
+    orientation_i = np.arctan2((line_i[0][1]-line_i[1][1]),(line_i[0][0]-line_i[1][0]))
 
     points = []
     for line in lines:
         points.append(line[0])
         points.append(line[1])
 
-    if (abs(math.degrees(orientation_i)) > 45) and abs(math.degrees(orientation_i)) < (90+45):
+    if (abs(np.degrees(orientation_i)) > 45) and abs(np.degrees(orientation_i)) < (90+45):
 
         #sort by y
         points = sorted(points, key=lambda point: point[1])
@@ -101,10 +101,10 @@ def merge_lines_segments1(lines, use_log=False):
 # https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.cdist.html
 # https://stackoverflow.com/questions/32702075/what-would-be-the-fastest-way-to-find-the-maximum-of-all-possible-distances-betw
 def lines_close(line1, line2):
-    dist1 = math.hypot(line1[0][0] - line2[0][0], line1[0][0] - line2[0][1])
-    dist2 = math.hypot(line1[0][2] - line2[0][0], line1[0][3] - line2[0][1])
-    dist3 = math.hypot(line1[0][0] - line2[0][2], line1[0][0] - line2[0][3])
-    dist4 = math.hypot(line1[0][2] - line2[0][2], line1[0][3] - line2[0][3])
+    dist1 = np.hypot(line1[0][0] - line2[0][0], line1[0][0] - line2[0][1])
+    dist2 = np.hypot(line1[0][2] - line2[0][0], line1[0][3] - line2[0][1])
+    dist3 = np.hypot(line1[0][0] - line2[0][2], line1[0][0] - line2[0][3])
+    dist4 = np.hypot(line1[0][2] - line2[0][2], line1[0][3] - line2[0][3])
 
     if (min(dist1,dist2,dist3,dist4) < 100):
         return True
