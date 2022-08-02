@@ -152,14 +152,14 @@ def Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fib
         ax.set_ylim((Image.shape[0], 0))
         
         
-        plt.savefig(image_dir_path+'/image_'+str(i+4498)+'_mask', bbox_inches='tight', pad_inches=0, dpi=dpi)
+        plt.savefig(image_dir_path+'/image_'+str(i+4430)+'_mask', bbox_inches='tight', pad_inches=0, dpi=dpi)
         
         # enregister les coordonées des fibres de chaque image dans un fichier csv
         
         #fibre_data = np.hstack((X1, Y1, X2, Y2, Pente, width))
         fibre = pd.DataFrame([X1, Y1, X2, Y2, Pente, Intercept, width, N_analogs],  dtype='f')
         fibre = fibre.transpose() 
-        fibre.to_csv(csv_dir_path+'/image_'+str(i+4498)+'_mask', header=['X1', 'Y1', 'X2', 'Y2', 'slop', 'b', 'width', 'N_analogs'], index=False)
+        fibre.to_csv(csv_dir_path+'/image_'+str(i+4430)+'_mask', header=['X1', 'Y1', 'X2', 'Y2', 'slop', 'b', 'width', 'N_analogs'], index=False)
         
         
         
