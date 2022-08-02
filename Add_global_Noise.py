@@ -1,7 +1,7 @@
 from Biologic_Noise.Add_biological_noise import Add_biological_noise
 from Electronic_Noise.Add_Electronic_Noise import Add_Electronic_noise
 
-from util import sorted_file
+from util import *
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image, ImageFilter, ImageEnhance
