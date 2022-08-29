@@ -9,17 +9,21 @@ from util import distance
 mpl.rc('figure', max_open_warning = 0)
 
 
+def create_dir(dir_path):
+    if os.path.isdir(dir_path):
+        print('Directory{dir_path} exists !')
+    else:
+        os.makedirs(dir_path)
+        print('Directory{dir_path} created !')
+
 
 # la pente des fibres sur toute les image
 def Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fibres, delta, l_min, lmin_Analog,
                     lmax_Analog, lmax, Max_analog, dif_analg, min_fibre, image_dir_path, csv_dir_path):
     
-    if os.path.isdir(image_dir_path) and os.path.isdir(csv_dir_path):
-        print('directories exist !')
-    else:
-        os.makedirs(image_dir_path)
-        os.makedirs(csv_dir_path)
-        print('Directories are created !')
+    create_dir(image_dir_path)
+    create_dir(csv_dir_path)
+
     for i in range(N_images):
         fiber_width = np.random.randint(4, 6)
         
@@ -152,14 +156,14 @@ def Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fib
         ax.set_ylim((Image.shape[0], 0))
         
         
-        plt.savefig(image_dir_path+'/image_'+str(i+4430)+'_mask', bbox_inches='tight', pad_inches=0, dpi=dpi)
+        plt.savefig(image_dir_path+'/image_'+str(i+3430)+'_mask', bbox_inches='tight', pad_inches=0, dpi=dpi)
         
         # enregister les coordonées des fibres de chaque image dans un fichier csv
         
         #fibre_data = np.hstack((X1, Y1, X2, Y2, Pente, width))
         fibre = pd.DataFrame([X1, Y1, X2, Y2, Pente, Intercept, width, N_analogs],  dtype='f')
         fibre = fibre.transpose() 
-        fibre.to_csv(csv_dir_path+'/image_'+str(i+4430)+'_mask', header=['X1', 'Y1', 'X2', 'Y2', 'slop', 'b', 'width', 'N_analogs'], index=False)
+        fibre.to_csv(csv_dir_path+'/image_'+str(i+3430)+'_mask', header=['X1', 'Y1', 'X2', 'Y2', 'slop', 'b', 'width', 'N_analogs'], index=False)
         
         
         
@@ -208,7 +212,7 @@ dif_analg = Analog_characteristics['diff_l_analg']
 # la longueur min d'une fibre qui peut avoir des analogues min_fibre
 min_fibre = Analog_characteristics['l_min_fibre_with_analog'] 
 
-image_dir_path = './output_images'
+image_dir_path = './images'
 csv_dir_path = './fibers_coords'
 
 Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fibres, delta, l_min, lmin_Analog,

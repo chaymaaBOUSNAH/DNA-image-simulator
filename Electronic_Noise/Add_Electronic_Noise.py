@@ -7,7 +7,7 @@ import time
 
 
 def Add_Electronic_noise(image, prob_green_dominant, amount_SP, min_size_noise, max_size_noise, min_val_salt, max_val_salt,sigma_Gaussian_noise, 
-                         gaussian_Blur_sigma, Parasites_blue_ch, Parasites_green_ch, Parasites_red_ch, Prob_change_intensity,gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max):
+                         gaussian_Blur_sigma, Parasites_blue_ch, Parasites_green_ch, Parasites_red_ch, Prob_change_intensity,gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max, scanner_img):
     start_time = time.time()
     
     assert np.amax(image)==255 and np.amin(image)==0, 'values are not in the range [0 255], normalise image values'
@@ -91,8 +91,14 @@ def Add_Electronic_noise(image, prob_green_dominant, amount_SP, min_size_noise, 
         b = random.uniform(-gradient_value, gradient_value)
         array_rgb = get_gradient_3d(row,col, (r, g, b), (0, 0, 0))
         image = image - array_rgb
-    
         image = np.uint8(np.clip(image, 0, 255))
+    
+        
+    
+    if scanner_img:
+        
+        global_sigma = np.random.randint(60, 90)
+        image = Gaussian_noise_RGB(image, global_sigma)
 
       
     print('Electronic noise', "--- %s seconds ---" % (time.time() - start_time))        

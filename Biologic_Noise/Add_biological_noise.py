@@ -19,8 +19,9 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
 
     csv_path = corresponding_csv_img(csv_path, image_file)
     file_fibers = os.path.basename(csv_path)
+
     
-    assert len(file_fibers) == 1, f'Either no file or multiple files found for the file {file_fibers}'
+    assert len([file_fibers]) == 1, f'Either no file or multiple files found for the file {file_fibers}'
 
     # coord des fibres
     Fiber_data = pd.read_csv(csv_path)
