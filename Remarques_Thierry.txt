@@ -1,0 +1,6 @@
+
+# PARAMETRES DU GENERATEUR
+J'ai vu que tu avais introduis les valeurs de paramètres (le bruit par exemple) dans un code à part.
+Il serait peut être préférable de les mettre dans un fichier texte sous forme de hash ? Car ainsi, même un non programmeur peut essayer de configurer le générateur d'image.
+et de plus une interface pourrait être plus facilement modulable en produisant ce fichier de paramètre !
+
