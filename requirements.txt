@@ -1,0 +1,9 @@
+Numpy
+matplotlib
+tifffile
+pathlib
+pandas
+random2
+pillow
+scipy
+

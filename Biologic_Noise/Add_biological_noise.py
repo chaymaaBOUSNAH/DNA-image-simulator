@@ -150,43 +150,24 @@ def Add_biological_noise(image, image_file, csv_path, total_noisy_fibers, min_Pr
         noise_color = np.random.choice(noise_colors, 1, p = [0.7, 0.15, 0.15])
         linewidth = np.random.randint(2, 8)
         plt.plot((x1, x2),(y1, y2), color= noise_color[0], linewidth=linewidth)
-        
 
-        
-    #colors = ['#32CD32', '#FF34B3']
-    #color = np.random.choice(colors, 1, p = [0.6, 0.4])
+
+    # add noise points with different size and colors
+    size = np.random.uniform(1, 7)
+    colors = ['#00FF00', 'b']
+    color = np.random.choice(colors, 1, p=[0.6, 0.4])
+    markers = ['s', 'o']
+    markr = np.random.choice(markers, 1, p=[0.6, 0.4])
+    x_list = []
+    y_list = []
     for j in range(pepper):
         x = np.random.uniform(0, raw)
+        x_list.append(x)
         y = np.random.uniform(0, col)
-        size = np.random.uniform(1, 7)
-        #colors = ['#00FF00', 'b']
-        #color = np.random.choice(colors, 1, p = [0.6, 0.4])
-        markers = ['s', 'o']
-        markr = np.random.choice(markers, 1, p=[0.6, 0.4])
-        plt.scatter(x, y, s=size, c='#00FF00', marker=markr[0])
-        plt.scatter(x, y, s=size, c='#0000FF', marker=markr[0])
-    
- 
-    """    
-    for noisy_dust in range(pepper):   
-        # autre bruit : poussière
-        x = np.random.uniform(0, 2048)
-        y = np.random.uniform(0, 2048)
-        colors = ['#32CD32', '#FF34B3']
-        color = random.choices(colors, weights=[0.8, 0.2])
-        alpha_value = 0.3
-        
-        n_point =  np.random.randint(10, 30)
-        s = np.random.uniform(0.01, 7)
-         
-        for n in range(1, n_point+1):
-            
-            if n<5:
-                plt.scatter(x,y, marker='o', c = 'w', s = s*n, alpha = alpha_value/n)
-            else:
-                plt.scatter(x,y, marker='o',color = color, s = s*n , alpha = alpha_value/(n*1.5))  
-      """          
-    
+        y_list.append(y)
+
+    plt.scatter(x_list, y_list, s=size, c=color, marker=markr[0])
+
     # plot randomly a line
     proba_noisy_line = random.choices(['true', 'false'], weights=(0.01, 0.9))
     if proba_noisy_line == ['true']:

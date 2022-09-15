@@ -1,6 +1,5 @@
 from Biologic_Noise.Add_biological_noise import Add_biological_noise
 from Electronic_Noise.Add_Electronic_Noise import Add_Electronic_noise
-
 from util import *
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,16 +15,6 @@ import matplotlib as mpl
 mpl.rc('figure', max_open_warning=0)
 
 
-def createNoisyDirectory(output_dir_path):
-    if output_dir_path == '':
-        return "The output path is empty"
-    if os.path.isdir(output_dir_path):
-        return 'Noisy images directory already exist !'
-    else:
-        os.makedirs(output_dir_path)
-        return 'Noisy images directory is created !'
-
-
 def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, min_Prob_perlage, max_Prob_perlage,
                      min_N_pixels_perlage,
                      max_lenght_perlage, prob_green_dominant, min_amount_salt, max_amount_salt, min_size_noise,
@@ -34,7 +23,9 @@ def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, m
                      Parasites_green_ch_max, Parasites_blue_ch_max, Parasites_red_ch_max, Prob_change_intensity,
                      gradient_value, Prob_Add_PSF, number_psf_max, psf_min, psf_max, min_noisy_points, max_noisy_points,
                      output_dir_path, scanner_img=True):
-    createNoisyDirectory(output_dir_path)
+
+
+    create_directory(output_dir_path)
 
     for (dirpath, dirnames, filenames) in walk(Images_dir):
 
@@ -59,7 +50,7 @@ def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, m
                                                    max_Prob_perlage, min_N_pixels_perlage, max_lenght_perlage,
                                                    noisy_points)
 
-            # Ajouter le bruit électronique : Gaussian noise, S&P , Gaussian Blur, Add_constant 
+            # Ajouter le bruit électronique : Gaussian noise, S&P , Gaussian Blur, Add_constant
             amount_salt = np.random.uniform(min_amount_salt, max_amount_salt)
             gaussian_Blur_sigma = np.random.uniform(0.5, max_gaussian_Blur_sigma)
             Parasites_green_ch = np.random.randint(Parasites_green_ch_max - 20, Parasites_green_ch_max)
@@ -85,8 +76,8 @@ def Add_global_noise(Images_dir, csv_path, min_noisy_fibers, max_noisy_fibers, m
 
             #pil_image = pil_image.filter(ImageFilter.GaussianBlur(radius=radius))
 
-            pil_image.save(output_dir_path + '\image_' + indx[1] + '.png')
-
+            pil_image.save(output_dir_path + 'image_' + indx[1] + '.png')
+            plt.close()
             file_index += 1
             print("--- %s seconds ---" % (time.time() - start_time))
             print('file_index', file_index)
@@ -106,7 +97,7 @@ min_noisy_fibers = Add_biologic_noise['min_noisy_fibers']
 max_noisy_fibers = Add_biologic_noise['max_noisy_fibers']
 min_Prob_perlage = Add_biologic_noise['min_Prob_perlage']
 max_Prob_perlage = Add_biologic_noise['max_Prob_perlage']
-# la longueur min de pixel pour avoir un perlage 
+# la longueur min de pixel pour avoir un perlage
 min_N_pixels_perlage = Add_biologic_noise['min_N_pixels_perlage']
 max_lenght_perlage = Add_biologic_noise['max_lenght_perlage']
 min_noisy_points = Add_biologic_noise['min_noisy_points']
@@ -135,19 +126,14 @@ Prob_Add_PSF = Add_Electrnic_noise['Prob_Add_PSF']
 psf_min = Add_Electrnic_noise['psf_min']
 psf_max = Add_Electrnic_noise['psf_max']
 
-'''
+
 # paths
 paths = data['Path']
-csv_path = paths['csv_path'] 
+csv_path = paths['csv_path']
 #output_dir_path
-output_dir_path = paths['output_dir_path'] 
-Images_dir = paths['Images_dir']     
-'''
+output_dir_path = paths['output_dir_path']
+Images_dir = paths['Images_dir']
 
-csv_path = './fibers_coords'
-# output_dir_path
-output_dir_path = './noisy_images'
-Images_dir = './img/'
 
 
 
