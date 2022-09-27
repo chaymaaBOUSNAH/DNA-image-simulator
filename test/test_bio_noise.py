@@ -1,7 +1,7 @@
 import unittest
 import sys
 sys.path.append('./Biologic_Noise//utils_bio')
-from .utils_bio import verify_csv
+from Biologic_Noise.utils_bio import verify_csv
 
 class BioTestCase(unittest.TestCase):
 
