@@ -69,16 +69,6 @@ def Add_Electronic_noise(image, prob_green_dominant, amount_SP, min_size_noise, 
             channel_psf = random.choices([0, 1, 2], weights=[0.35, 0.6, 0.05])
             image = Add_PSF_to_image(image, channel_psf, mx, my, ax, sx, ay, sy)
             add_near_psf = random.choices(['true', 'false'], weights=[0.4, 0.6])
-            
-            # ajouter d'autres tache flurescente à cote pour faire des formes différentes
-            if add_near_psf ==['true']:
-                N = np.random.randint(1, 5)
-                for near_psf in range(N):
-                    n = np.random.uniform(5, 20)
-                    m = np.random.uniform(5, 20)
-                    l = np.random.uniform(0.2, 2)
-                    image = Add_PSF_to_image(image, channel_psf, mx+n, my+m, ax*l, sx, ay*l, sy)
-            
 
   
     '''
