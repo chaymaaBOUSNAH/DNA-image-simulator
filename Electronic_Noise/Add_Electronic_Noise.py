@@ -68,9 +68,7 @@ def Add_Electronic_noise(image, prob_green_dominant, amount_SP, min_size_noise, 
             # l'indice du channal qui aura la couleur lumineuse dominante
             channel_psf = random.choices([0, 1, 2], weights=[0.35, 0.6, 0.05])
             image = Add_PSF_to_image(image, channel_psf, mx, my, ax, sx, ay, sy)
-            add_near_psf = random.choices(['true', 'false'], weights=[0.4, 0.6])
 
-  
     '''
     changer l'intensité sur certaine zone de l'image horizontalement et verticalement
     '''

@@ -212,4 +212,3 @@ Image_simulator(N_images, image_width, image_height, min_N_fibres, max_N_fibres,
 
 
 
-

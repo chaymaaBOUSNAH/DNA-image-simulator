@@ -6,7 +6,7 @@ from util import create_directory
 
 class Test(TestCase):
 
-    def test_create_noisy_directory_when_output_path_is_empty(self):
+    def test_create_directory_when_output_path_is_empty(self):
         #Assert
         output_dir_path = ''
 
@@ -16,7 +16,7 @@ class Test(TestCase):
         #Then
         self.assertEqual(expectedResult, 'The output path is empty')
 
-    def test_create_noisy_directory_when_output_path_already_exist(self):
+    def test_create_directory_when_output_path_already_exist(self):
         #Assert
         output_dir_path = './images'
 
@@ -27,7 +27,7 @@ class Test(TestCase):
         self.assertEqual(expectedResult, 'Noisy images directory already exist !')
 
     @mock.patch('os.makedirs', mock.Mock(return_value=0))
-    def test_create_noisy_directory_when_creating_directory(self):
+    def test_create_directory_when_creating_directory(self):
         #Assert
         output_dir_path = './test1'
 
